@@ -9,7 +9,7 @@ var mongo = require('mongodb').MongoClient;
 var url = 'mongodb://LGJ:1234@localhost:27017/madcamp';
 //var url = 'mongodb+srv://admin:madcamp@week2.ivjze.mongodb.net/dojo?retryWrites=true&w=majority';
 
-mongo.connect(url, (err)=>{
+mongo.connect(url, (err, client)=>{
     if (err)
         console.log('Unable to connect to the mongoDB server.Error',err);
     else{
@@ -53,10 +53,12 @@ mongo.connect(url, (err)=>{
         })
         // login button click
         app.post('/login', (request, response) =>{
+            console.log("login start");
             var id = request.body.id;
             var password = request.body.password;
 
-            var collection = db.collection('user');
+            var db = client.db('madcamp')
+            var collection = db.collection("user");
 
             collection.find({id:id}).count(function(err, number){
                 if (number == 0){

@@ -1,110 +1,137 @@
-import React, { Component } from 'react'
-import {Text, View, TextInput, TouchableOpacity } from 'react-native'
+import React, { Component, useState } from 'react'
+import {Text, View, TextInput, TouchableOpacity,StyleSheet } from 'react-native'
 import axios from 'axios';
+import Toast from 'react-native-simple-toast';
 
-class App extends Component {
-constructor(){
-    super();
-    this.state = {
-    dataku: [],
-  };
-  }
+export default class App extends Component {
+  constructor(){
+      super();
+      this.state = {
+      dataku: [],
+      };
+    }
 
-klikPost(){
-    var url = 'http://192.168.0.14:80/data';
-    axios.post(url, {
-      name: this.state.input1,
-      password: this.state.input2
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+  // getReg(){//only id check
+  //     var url = 'http://192.168.0.14:80/register';
+  //     axios.post(url, {
+  //       id: this.state.id,
+  //     })
+  //     .then(function (response) {
+  //       if(response === 'yes'){
+  //         user_id=this.state.id;
+  //       }
+  //       else if(response === 'no'){
+          
+  //       }
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+      
+  //     this.state.input1 = '';
+  //     this.state.input2 = '';
+  //   };
     
-    this.state.input1 = '';
-    this.state.input2 = '';
-  };
-  
-  klikGet(){
-    var url = 'http://192.168.0.14:80/data';
-    axios.get(url)
-    .then((ambilData) => {
-      console.log(ambilData.data);
-      this.setState({
-        dataku: ambilData.data,
-      }) 
-    })
-  };
-
-render() {
-
-    const dataMongo = this.state.dataku.map((item, index)=>{
-        var arrayku = ['Name: ',item.name,', password: ', item.password, ' th.'].join(' ');
-        return <Text style={{fontSize:20,fontWeight:'bold'}} key={index}>{arrayku}</Text>;
+  getIn(){//id, password check
+      var url = 'http://192.168.0.14:80/login';
+      axios.post(url, {
+        id: this.state.id,
+        password: this.state.password
       })
+      .then(function (response) {
+        if(response.data === 'yes'){
+          Toast.show('어서오십시오. 기다리고 있었습니다.')
+        }
+        else if(response.data === 'id'){
+          Toast.show('아이디ㅋ 틀림ㅋ')
+        }
+        else if(response.data === 'password'){
+          Toast.show('비번ㅋ 틀림ㅋ')
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      
+      //this.state.id = '';
+      //this.state.password = '';
+    };
 
+  render() {
     return (
-<View>
-<View style={{flexDirection:'column', alignItems:'center'}}>
-
-<Text style={{marginTop:20, fontSize:25, fontWeight:'bold' }}>
-Login
-</Text>
-
-<TextInput
-placeholder='input name!!!!'
-style={{height: 55, width: 350, fontSize: 15}}
-onChangeText={(input1) => this.setState({input1})}
-value={this.state.input1}
-/>
-
-<TextInput
-placeholder='input password!!!'
-style={{height: 55, width: 350, fontSize: 15}}
-onChangeText={(input2) => this.setState({input2})}
-value={this.state.input2}
-/>
-</View>
-
-<View style={{flexDirection:'row', justifyContent:'center'}}>
-<TouchableOpacity
-style={{
-    backgroundColor:'blue', borderRadius:10,
-    flex:1, width:100, height:50, margin:20,
-    flexDirection:'row', justifyContent:'center',
-    alignItems:'center'
-    }}
-onPress={this.klikPost.bind(this)}
->
-<Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-REGISTER
-</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-style={{
-    backgroundColor:'green', borderRadius:10,
-    flex:1, width:100, height:50, margin:20,
-    flexDirection:'row', justifyContent:'center',
-    alignItems:'center'
-    }}
-onPress={this.klikGet.bind(this)}
->
-<Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-LOGIN
-</Text>
-</TouchableOpacity>
-</View>
-
-<View style={{flexDirection:'column',alignItems:'center'}}>
-{dataMongo}
-</View>
-
-</View>
-);
-}
+      <View style={styles.container}>
+        <View style={styles.title}><Text style={{fontSize:50}}>LOG-IN</Text></View>
+        <View style={styles.cont}>
+          <View style={styles.between}>
+            <Text style={{fontSize:20}}>ID</Text>
+            <TextInput
+              placeholder = "Enter your ID"
+              style={styles.input}
+              maxLength={15}
+              secureTextEntry
+              onChangeText={(id) => this.setState({id})}
+              value={this.state.id}
+            />
+          </View>
+          <View style={styles.between}>
+            <Text style={{fontSize:20}}>Password</Text>
+            <TextInput
+              placeholder = "Enter your Password"
+              style={styles.input}
+              maxLength={15}
+              secureTextEntry
+              onChangeText={(password) => this.setState({password})}
+              value={this.state.password}
+            />
+          </View>
+        </View>
+        <View style={{flexDirection:'row', justifyContent:'center'}}>
+          <TouchableOpacity
+          style={{
+              backgroundColor:'blue', borderRadius:10,
+              flex:1, width:100, height:50, margin:20,
+              flexDirection:'row', justifyContent:'center',
+              alignItems:'center'
+              }}
+          onPress={this.getIn.bind(this)}
+          >
+          <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
+          LOG-IN
+          </Text>
+          </TouchableOpacity>
+      </View>
+      </View>
+    );
+  }
 }
 
-export default App;
+
+const styles = StyleSheet.create({
+    container: { flex: 1, justifyContent: "center" },
+    input: {
+      margin: 5,
+      padding: 6,
+      borderRadius: 8,
+      marginBottom: 8,
+      paddingHorizontal: 10,
+      backgroundColor: "#eceff1"
+    },
+    title: {
+      flex:2,
+      justifyContent: 'center',
+      marginLeft:10,
+      width:"100%",
+      borderBottomWidth:1.5,
+      borderColor:'#444'
+    },
+    cont:{
+      flex:8,
+      justifyContent:'flex-start',
+      marginLeft:10,
+      marginRight:10,
+      paddingTop: 50
+    },
+    between:{
+      marginBottom: 40
+    }
+});
