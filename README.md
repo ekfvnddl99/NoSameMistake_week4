@@ -1,11 +1,3 @@
-#
-
-![simplinnovation](https://4.bp.blogspot.com/-f7YxPyqHAzY/WJ6VnkvE0SI/AAAAAAAADTQ/0tDQPTrVrtMAFT-q-1-3ktUQT5Il9FGdQCLcB/s350/simpLINnovation1a.png)
-
-# React :heart: React Native :yellow_heart: Express :green_heart: MongoDB
-
-[![Video](https://img.youtube.com/vi/EZNLq3SVdv4/0.jpg)](https://www.youtube.com/watch?v=EZNLq3SVdv4)
-
 ## __1. Setup MongoDB Database__
 
 - Activate MongoDB server, then create a __*dojo*__ database with a __*ninja*__ collection. Don't forget to create your database user:

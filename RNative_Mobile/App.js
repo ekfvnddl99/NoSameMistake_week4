@@ -14,7 +14,7 @@ klikPost(){
     var url = 'http://192.168.0.14:80/data';
     axios.post(url, {
       name: this.state.input1,
-      age: this.state.input2
+      password: this.state.input2
     })
     .then(function (response) {
       console.log(response);
@@ -22,6 +22,7 @@ klikPost(){
     .catch(function (error) {
       console.log(error);
     });
+    
     this.state.input1 = '';
     this.state.input2 = '';
   };
@@ -40,7 +41,7 @@ klikPost(){
 render() {
 
     const dataMongo = this.state.dataku.map((item, index)=>{
-        var arrayku = ['Name: ',item.name,', Age: ', item.age, ' th.'].join(' ');
+        var arrayku = ['Name: ',item.name,', password: ', item.password, ' th.'].join(' ');
         return <Text style={{fontSize:20,fontWeight:'bold'}} key={index}>{arrayku}</Text>;
       })
 
@@ -49,18 +50,18 @@ render() {
 <View style={{flexDirection:'column', alignItems:'center'}}>
 
 <Text style={{marginTop:20, fontSize:25, fontWeight:'bold' }}>
-RN ♥♥♥ Express ♥ MongoDB
+Login
 </Text>
 
 <TextInput
-placeholder='input name'
+placeholder='input name!!!!'
 style={{height: 55, width: 350, fontSize: 15}}
 onChangeText={(input1) => this.setState({input1})}
 value={this.state.input1}
 />
 
 <TextInput
-placeholder='input age'
+placeholder='input password!!!'
 style={{height: 55, width: 350, fontSize: 15}}
 onChangeText={(input2) => this.setState({input2})}
 value={this.state.input2}
@@ -78,7 +79,7 @@ style={{
 onPress={this.klikPost.bind(this)}
 >
 <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-POST
+REGISTER
 </Text>
 </TouchableOpacity>
 
@@ -92,7 +93,7 @@ style={{
 onPress={this.klikGet.bind(this)}
 >
 <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-GET
+LOGIN
 </Text>
 </TouchableOpacity>
 </View>
