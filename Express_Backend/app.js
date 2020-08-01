@@ -14,23 +14,13 @@ mongo.connect(url, (err, client)=>{
         console.log('Unable to connect to the mongoDB server.Error',err);
     else{
         
-        app.get('/data', (req, res)=>{
-            if (err) console.log(err);
-            else{
-                var collection = db.collection('user');
-                collection.find({}).toArray((err, array)=>{
-                    res.send(array);
-                    console.log("get");
-                })
-            }
-        })
-
 
         // register button click
         app.post('/register', (request, response)=>{
             var id = request.body.id;
             var password = request.body.password;
 
+            var db = client.db('madcamp')
             var collection = db.collection('user');
 
             var insertJson = {
@@ -40,12 +30,11 @@ mongo.connect(url, (err, client)=>{
 
             collection.find({id:id}).count(function(err, number){
                 if (number != 0){
-                    response.send("Id already exist");
+                    response.send("id");
                     console.log("Id already exist");
                 }
                 else{
                     collection.insert(insertJson, (err, res)=>{
-                        response.send("yes");
                         console.log("Register success");
                     })
                 }
@@ -58,7 +47,7 @@ mongo.connect(url, (err, client)=>{
             var password = request.body.password;
 
             var db = client.db('madcamp')
-            var collection = db.collection("user");
+            var collection = db.collection('user');
 
             collection.find({id:id}).count(function(err, number){
                 if (number == 0){

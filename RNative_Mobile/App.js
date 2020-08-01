@@ -8,7 +8,10 @@ const MAX_LEN = 15,
   MIN_LEN = 6,
   PASS_LABELS = ["Too Short", "Weak", "Normal", "Strong", "Secure"];
 
+  //const [password, setPassword] = useState("");
+
 export default class App extends Component {
+  
   constructor(){
       super();
       this.state = {
@@ -23,7 +26,7 @@ export default class App extends Component {
       password: this.state.password
     })
     .then(function (response) {
-      if(response === 'id'){
+      if(response.data === 'id'){
         Toast.show('다시 입력해주세용답역')
       }
     })
@@ -58,6 +61,7 @@ export default class App extends Component {
     };
 
   render() {
+     //const [password, setPassword] = useState("");
     return (
       <View style={styles.container}>
         <View style={styles.title}><Text style={{fontSize:50}}>LOG-IN</Text></View>
@@ -68,7 +72,6 @@ export default class App extends Component {
               placeholder = "Enter your ID"
               style={styles.input}
               maxLength={15}
-              secureTextEntry
               onChangeText={(id) => this.setState({id})}
               value={this.state.id}
             />
@@ -80,18 +83,18 @@ export default class App extends Component {
               style={styles.input}
               maxLength={15}
               secureTextEntry
-              onChangeText={(password) => this.setState({password})}
+              onChangeText={password => this.setState({password})}
               value={this.state.password}
             />
-            <PassMeter
+            { /*<PassMeter
             showLabels
-            password={password}
+            pwd={password}
             maxLength={MAX_LEN}
             minLength={MIN_LEN}
             labels={PASS_LABELS}
-          />
+            /> */}
           </View>
-        </View>
+      </View>
         <View style={{flexDirection:'row', justifyContent:'center'}}>
           <TouchableOpacity
           style={{
@@ -106,8 +109,6 @@ export default class App extends Component {
           LOG-IN
           </Text>
           </TouchableOpacity>
-      </View>
-      <View style={{flexDirection:'row', justifyContent:'center'}}>
           <TouchableOpacity
           style={{
               backgroundColor:'blue', borderRadius:10,

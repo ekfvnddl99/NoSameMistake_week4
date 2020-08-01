@@ -11,6 +11,7 @@
     "native-base": "^2.7.2",
     "react": "16.4.1",
     "react-native": "0.55.2",
+    "react-native-passmeter": "0.0.5",
     "react-native-simple-toast": "1.1.2"
   },
   "devDependencies": {
