@@ -1,9 +1,9 @@
 ## __1. Setup MongoDB Database__
 
-- Activate MongoDB server, then create a __*dojo*__ database with a __*ninja*__ collection. Don't forget to create your database user:
+- Activate MongoDB server, then create a __*madcamp*__ database with a __*user*__ collection. Don't forget to create your database user:
 
     ```bash
-    $ use dojo
+    $ use madcamp
     
     $ db.createUser({
         user: 'your_username',
@@ -11,18 +11,18 @@
         roles: ['readWrite', 'dbAdmin'] 
         })
 
-    $ db.createCollection('ninja')
+    $ db.createCollection('user')
     ```
 
-- Insert some data, as initial data, into __*ninja*__ collection:
+- Insert some data, as initial data, into __*user*__ collection:
 
     ```bash
-    $ db.ninja.insert([
-        {nama: 'Andi', usia: 22},
-        {nama: 'Budi', usia: 23}
+    $ db.user.insert([
+        {id: 'A', password: '1234'},
+        {id: 'B', password: '1234'}
         ])
     
-    $ db.ninja.find().pretty();
+    $ db.user.find().pretty();
     ```
 - __Done!__ :thumbsup:
 
@@ -33,8 +33,6 @@
 - Clone this repo, go to __*Express_Backend*__ folder then install all dependencies:
 
     ```bash
-    $ git clone https://github.com/LintangWisesa/React_RNative_Express_MongoDB.git
-
     $ cd React_RNative_Express_MongoDB/Express_Backend
 
     $ npm i
@@ -43,10 +41,10 @@
 - Open __*app.js*__ & edit this line to configure your database:
     
     ```javascript
-    var url = 'mongodb://user:password@localhost:27017/dojo';
+    var url = 'mongodb://user:password@localhost:27017/madcamp';
     ```
 
-- Save it, then run your backend project. It will run at __*localhost:3210*__:
+- Save it, then run your backend project. It will run at __*localhost:80*__:
 
     ```bash
     $ node app
@@ -74,7 +72,7 @@
 
 ## __4. Setup React Native Android Project__
 
-- Activate your __*AVD (Android Virtual Device)*__. In this project, I'm using __*Genymotion*__. It's much lighter than Android Studio's AVD.
+- Activate your __*AVD (Android Virtual Device)*__.
 
 - Go to __*RNative_Mobile*__ folder, install all dependencies then run this project:
 
@@ -89,19 +87,3 @@
 - __Done!__ :thumbsup:
 
 #
-
-__See also:__
-- [React :heart: React Native :yellow_heart: Express :green_heart: MongoDB](https://github.com/LintangWisesa/React_RNative_Express_MongoDB)
-- [React :heart: React Native :yellow_heart: Express :green_heart: MySQL](https://github.com/LintangWisesa/React_RNative_Express_MySQL)
-- [React :heart: React Native :yellow_heart: Express :green_heart: PostgreSQL](https://github.com/LintangWisesa/React_RNative_Express_PostgreSQL)
-
-#
-
-#### Lintang Wisesa :love_letter: _lintangwisesa@ymail.com_
-
-[Facebook](https://www.facebook.com/lintangbagus) |
-[Twitter](https://twitter.com/Lintang_Wisesa) |
-[Google+](https://plus.google.com/u/0/+LintangWisesa1) |
-[Youtube](https://www.youtube.com/user/lintangbagus) | 
-:octocat: [GitHub](https://github.com/LintangWisesa) |
-[Hackster](https://www.hackster.io/lintangwisesa)
