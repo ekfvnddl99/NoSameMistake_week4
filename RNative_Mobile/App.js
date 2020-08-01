@@ -2,6 +2,11 @@ import React, { Component, useState } from 'react'
 import {Text, View, TextInput, TouchableOpacity,StyleSheet } from 'react-native'
 import axios from 'axios';
 import Toast from 'react-native-simple-toast';
+import PassMeter from "react-native-passmeter";
+
+const MAX_LEN = 15,
+  MIN_LEN = 6,
+  PASS_LABELS = ["Too Short", "Weak", "Normal", "Strong", "Secure"];
 
 export default class App extends Component {
   constructor(){
@@ -11,26 +16,21 @@ export default class App extends Component {
       };
     }
 
-  // getReg(){//only id check
-  //     var url = 'http://192.168.0.14:80/register';
-  //     axios.post(url, {
-  //       id: this.state.id,
-  //     })
-  //     .then(function (response) {
-  //       if(response === 'yes'){
-  //         user_id=this.state.id;
-  //       }
-  //       else if(response === 'no'){
-          
-  //       }
-  //     })
-  //     .catch(function (error) {
-  //       console.log(error);
-  //     });
-      
-  //     this.state.input1 = '';
-  //     this.state.input2 = '';
-  //   };
+  getReg(){//only id check
+    var url = 'http://192.168.0.14:80/register';
+    axios.post(url, {
+      id: this.state.id,
+      password: this.state.password
+    })
+    .then(function (response) {
+      if(response === 'id'){
+        Toast.show('다시 입력해주세용답역')
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  };
     
   getIn(){//id, password check
       var url = 'http://192.168.0.14:80/login';
@@ -83,6 +83,13 @@ export default class App extends Component {
               onChangeText={(password) => this.setState({password})}
               value={this.state.password}
             />
+            <PassMeter
+            showLabels
+            password={password}
+            maxLength={MAX_LEN}
+            minLength={MIN_LEN}
+            labels={PASS_LABELS}
+          />
           </View>
         </View>
         <View style={{flexDirection:'row', justifyContent:'center'}}>
@@ -97,6 +104,21 @@ export default class App extends Component {
           >
           <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
           LOG-IN
+          </Text>
+          </TouchableOpacity>
+      </View>
+      <View style={{flexDirection:'row', justifyContent:'center'}}>
+          <TouchableOpacity
+          style={{
+              backgroundColor:'blue', borderRadius:10,
+              flex:1, width:100, height:50, margin:20,
+              flexDirection:'row', justifyContent:'center',
+              alignItems:'center'
+              }}
+          onPress={this.getReg.bind(this)}
+          >
+          <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
+          REGISTER
           </Text>
           </TouchableOpacity>
       </View>
