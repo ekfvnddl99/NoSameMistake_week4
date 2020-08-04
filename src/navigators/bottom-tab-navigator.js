@@ -11,8 +11,6 @@ import {
 
 const getTabBarIcon = (navigation, focused, tintColor) => {
   const { routeName } = navigation.state;
-  let IconComponent = Ionicons;
-  let iconName;
   if (routeName === "Home") {
     return <Feather name="home" size={24} color="black" />;
   } else if (routeName === "Profile") {

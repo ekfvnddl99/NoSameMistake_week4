@@ -10,10 +10,9 @@ import {
 import React, { Component } from "react";
 import { MenuButton, Logo } from "../components/header/header";
 import {Agenda} from 'react-native-calendars';
-import moment from 'moment';
 import _ from 'lodash';
-import Modal from "react-native-simple-modal";
 import { FloatingAction } from 'react-native-floating-action';
+
 
 const testIDs = require('../testIDs');
 
@@ -23,25 +22,30 @@ const futureDates = getFutureDates(9);
 const dates = [fastDate, today].concat(futureDates);
 const themeColor = '#00AAAF';
 const lightThemeColor = '#EBF9F9';
+  
+
 //floating button을 누르면 글을 쓸 수 있게 하기
 const actions = [
-  {
-  text: 'Accessibility',
-  name: 'bt_accessibility',
-  position: 2
-}, {
-  text: 'Language',
-  name: 'bt_language',
+//   {
+//   text: 'Accessibility',
+//   name: 'bt_accessibility',
+//   position: 2
+// }, 
+{
+  text: 'Add',
+  name: 'bt_add',
   position: 1
-}, {
-  text: 'Location',
-  name: 'bt_room',
-  position: 3
-}, {
-  text: 'Video',
-  name: 'bt_videocam',
-  position: 4
-}
+},
+// {
+//   text: 'category',
+//   name: 'bt_category',
+//   position: 0
+// }
+// {
+//   text: 'Video',
+//   name: 'bt_videocam',
+//   position: 4
+// }
 ];
 
 function getFutureDates(days) {
@@ -75,22 +79,6 @@ export default class ProfileScreen extends React.Component {
       items: {}
     };
   }
-//일정 추가하는 modal 부분 -> renderItem 으로 가기
-  state = { open: false };
-  openModal = () => this.setState({ open: true });
-  closeModal = () => this.setState({ open: false });
-  modalDidOpen = () => console.log("Modal did open.");
-
-  modalDidClose = () => {
-    this.setState({ open: false });
-    console.log("Modal did close.");
-  };
-
-  moveUp = () => this.setState({ offset: -100 });
-
-  resetPosition = () => this.setState({ offset: 0 });
-
-
 
   render() {
     return (
@@ -110,9 +98,9 @@ export default class ProfileScreen extends React.Component {
         actions={actions}
         onPressItem={
           (name) => {
-            console.log(`selected button: ${name}`);
-          }
-        }
+            if(name == 'bt_category'){this.props.navigation.navigate('Category');}
+            else if(name=='bt_add'){this.props.navigation.navigate('Record');}
+        }}
       />
 
       </View>
@@ -120,6 +108,10 @@ export default class ProfileScreen extends React.Component {
       
 };
 
+
+
+//안에 써줄 함수들
+//각각 날짜에 들어가는 것 기입하는 함수
 loadItems(day) {
   setTimeout(() => {
     for (let i = -15; i < 85; i++) {
@@ -148,6 +140,7 @@ loadItems(day) {
   }, 1000);
 }
 
+//각 아이템 누를 때마다 실행하는 것 
 renderItem(item) {
   return (
       <TouchableOpacity
@@ -209,3 +202,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   }
 });
+
+// //floating button으로 화면 전환 부분
+// const AppNavigator = createStackNavigator(
+//   {
+//   Profile: ProfileScreen,
+//   Record: RecordScreen
+//   },
+//   {
+//   initialRouteName: 'Profile',
+//   }
+//   );
+
+//   export default createAppContainer(AppNavigator);
