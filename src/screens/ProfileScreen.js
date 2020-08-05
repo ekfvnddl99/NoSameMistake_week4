@@ -12,6 +12,8 @@ import { MenuButton, Logo } from "../components/header/header";
 import {Agenda} from 'react-native-calendars';
 import _ from 'lodash';
 import { FloatingAction } from 'react-native-floating-action';
+import axios from 'axios'
+import moment from 'moment'
 
 
 const testIDs = require('../testIDs');
@@ -48,6 +50,7 @@ const actions = [
 // }
 ];
 
+var id;
 function getFutureDates(days) {
   const array = [];
   for (let index = 1; index <= days; index++) {
@@ -76,18 +79,21 @@ export default class ProfileScreen extends React.Component {
     super(props);
 
     this.state = {
-      items: {}
+      items: {},
     };
   }
 
+
   render() {
+    id = this.props.navigation.dangerouslyGetParent().dangerouslyGetParent().getParam('user', 'undefined')
     return (
       <View style={styles.floatingbutton}>
+        <Text> { id } </Text>
       <Agenda
         testID={testIDs.agenda.CONTAINER}
         items={this.state.items}
         loadItemsForMonth={this.loadItems.bind(this)}
-        selected={'2020-08-02'}
+        selected={moment().format("YYYY-MM-DD")}
         renderItem={this.renderItem.bind(this)}
         renderEmptyDate={this.renderEmptyDate.bind(this)}
         rowHasChanged={this.rowHasChanged.bind(this)}
@@ -98,8 +104,8 @@ export default class ProfileScreen extends React.Component {
         actions={actions}
         onPressItem={
           (name) => {
-            if(name == 'bt_category'){this.props.navigation.navigate('Category');}
-            else if(name=='bt_add'){this.props.navigation.navigate('Record');}
+            // if(name == 'bt_category'){this.props.navigation.navigate('Category');}
+            if(name=='bt_add'){this.props.navigation.navigate('Record', { user: id });}
         }}
       />
 
@@ -110,33 +116,77 @@ export default class ProfileScreen extends React.Component {
 
 
 
+
 //안에 써줄 함수들
 //각각 날짜에 들어가는 것 기입하는 함수
 loadItems(day) {
+  var th = this;
   setTimeout(() => {
-    for (let i = -15; i < 85; i++) {
+    var url = 'http://192.249.19.242:6480/schedule_show';
+    var category, schedule, schedule_time;
+
+    //앞뒤 일주일 간격의 시간을 보여준다
+    for (let i = -4; i < 10; i++) {
       const time = day.timestamp + i * 24 * 60 * 60 * 1000;
       const strTime = this.timeToString(time);
-      if (!this.state.items[strTime]) {
-        this.state.items[strTime] = [];
-        // const numItems = Math.floor(Math.random() * 3 + 1);
-        const numItems = 3;
-        for (let j = 0; j < numItems; j++) {
-          this.state.items[strTime].push({
-            //일정 안에 써주는 부분
-            //얘를 디비에서 불러내서 보여주면 될 것 같음
-            // name: 'Item for ' + strTime + ' #' + j,
-            name: 'write what you regret'
-            // height: Math.max(50, Math.floor(Math.random() * 150))
-          });
+
+      axios.post(url, {
+        id: id,
+        date: moment(strTime).format("MM-DD")
+      })
+      .then(function (response) {
+        var data = JSON.stringify(response.data);
+        if(data != "[]"){
+          data = JSON.parse(data);
+          console.log(data.length);
+          if (!th.state.items[strTime]) {
+            th.state.items[strTime] = [];
+            const numItems = data.length;
+            for (let j = 0; j < numItems; j++) {
+              var data1 = JSON.parse(JSON.stringify(data[j]));
+              category = data1.category;
+              if(category == 0){
+                category = 'Relationship';
+              }else if(category == 1){
+                category = 'Workplace'
+              }else{
+                category = 'ToMySelf'
+              }
+              schedule = data1.schedule;
+              console.log(schedule);
+              schedule_time = data1.time;
+              th.state.items[strTime].push({
+                name: schedule,
+                category : category,
+                schedule_time: schedule_time
+              });
+            }
+          }
         }
-      }
+        else{
+          th.state.items[strTime]=[{name:"empty schedule", category:"", schedule_time:""}];
+        }
+        const newItems = {};
+        Object.keys(th.state.items).forEach(key => {newItems[key] = th.state.items[key];});
+        th.setState({
+          items: newItems
+        });
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+      // if (!this.state.items[strTime]) {
+      //   this.state.items[strTime] = [];
+      //   const numItems = Math.floor(Math.random() * 3 + 1);
+      //   for (let j = 0; j < numItems; j++) {
+      //     this.state.items[strTime].push({
+      //       name: 'Item for ' + strTime + ' #' + j,
+      //       height: Math.max(50, Math.floor(Math.random() * 150))
+      //     });
+      //   }
+      // }
     }
-    const newItems = {};
-    Object.keys(this.state.items).forEach(key => {newItems[key] = this.state.items[key];});
-    this.setState({
-      items: newItems
-    });
+    
   }, 1000);
 }
 
@@ -147,7 +197,7 @@ renderItem(item) {
         testID={testIDs.agenda.ITEM}
         style={[styles.item, {height: item.height}]} 
         //각 날짜 아이템 누를 때 뜨는 버튼
-        onPress={() => Alert.alert(item.name)}
+        onPress={() => Alert.alert(item.schedule_time+" "+item.name + " " + item.category)}
       >
         <Text>{item.name}</Text>
       </TouchableOpacity>
@@ -202,16 +252,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   }
 });
-
-// //floating button으로 화면 전환 부분
-// const AppNavigator = createStackNavigator(
-//   {
-//   Profile: ProfileScreen,
-//   Record: RecordScreen
-//   },
-//   {
-//   initialRouteName: 'Profile',
-//   }
-//   );
-
-//   export default createAppContainer(AppNavigator);

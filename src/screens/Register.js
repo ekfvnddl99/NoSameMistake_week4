@@ -6,7 +6,7 @@ import {deleteFood} from '../actions/food'
 import {MyContext} from '../../index'
 import { UserConsumer } from '../../GlogalContext';
 
-export default class HomeScreen extends React.Component {
+export default class RegisterScreen extends React.Component {
   // static contextType = MyContext;
   // static contextType = Context;
   
@@ -21,7 +21,6 @@ export default class HomeScreen extends React.Component {
 
 
   render() {
-    var id = this.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
     return (
       // <UserConsumer>
       //   {
@@ -34,7 +33,7 @@ export default class HomeScreen extends React.Component {
       // </UserConsumer>
 
       <View>
-        <Text> { id } </Text>
+        <Text> { this.props.navigation.getParam('user', 'undefined') } </Text>
       </View>
 
     );
@@ -63,4 +62,3 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   }
 });
-

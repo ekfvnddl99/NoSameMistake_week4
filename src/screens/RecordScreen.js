@@ -10,6 +10,8 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import CategoryScreen from "./CategoryScreen";
 import SectionedMultiSelect from 'react-native-sectioned-multi-select'
+import DropdownMenu from 'react-native-dropdown-menu';
+
 
 
 const ThemedText = (props) => {
@@ -34,17 +36,21 @@ const RecordScreen = ({ navigation }) => {
 
     //sending information to server (id, schedule time, schedule name, schedule date, schedule category)
     const getReg = () => {//only id check
-        Toast.show(moment.utc(date).format('MM/DD/YYYY')+"");
+        var User_Id = navigation.getParam('user', 'undefined');
         var cate = comp.first;
         var record = regret.id;
-        var date = moment.utc(date).format('MM/DD/YYYY');
+        var Date = moment.utc(date).format('MM-DD');
+        var time = moment.utc(date).format('HH:mm');
         var url = 'http://192.249.19.242:6480/calendar';
         axios.post(url, {
-            record: regret.id
-
+            id: User_Id,
+            date: Date,
+            schedule: record,
+            time: time,
+            category: cate
         })
         .then(function (response) {
-            Toast.show('다시 입력해주세용답역');
+            Toast.show(date +" " + cate + " " + record + " "  + time);
         })
         .catch(function (error) {
             console.log(error);
@@ -55,7 +61,7 @@ const RecordScreen = ({ navigation }) => {
     const [comp, setText] =  useState({first: ''});
     const [regret, setRegret] =  useState({id: ''});
 
-    var field = [["relationship", "time", "workplace"]];
+    var field = [["relationship", "workplace", "ToMySelf"]];
 
     const addText = ({selection, row}) =>{
         if(selection==0) setText({first: field[selection][row]})
@@ -102,12 +108,15 @@ const RecordScreen = ({ navigation }) => {
     backgroundColor: isDarkMode ? Colors.dark : Colors.lighter,
     };
 
+    const id = navigation.getParam('user', 'undefined');
+
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
             <View>
                 <View>
+                    <Text> { id } is the user id dddddddddddd </Text>
 
                     <View style={styles.header}>
                         <ThemedText style={styles.text}>
@@ -172,7 +181,7 @@ const RecordScreen = ({ navigation }) => {
                 <Separator />
 
                     {/* Dropdown menu */}
-                    {/* <View style={{height: 64}}>
+                    <View style={{height: 64}}>
                         <DropdownMenu
                             bgColor={'white'}
                             tintColor={'#666666'}
@@ -181,7 +190,7 @@ const RecordScreen = ({ navigation }) => {
                             data={field}
                             >
                         </DropdownMenu>
-                    </View> */}
+                    </View>
 
                     {/* <View>
                         <Button
@@ -191,11 +200,11 @@ const RecordScreen = ({ navigation }) => {
                         />
                     </View> */}
 
-                    <View>
+                    {/* <View>
                         <CategoryScreen />
-                    </View>
+                    </View> */}
 
-                    <View style={{marginTop: 1-0}}>
+                    <View style={{marginTop: 120}}>
                         <Button 
                             testID="SaveAllButton"
                             onPress={()=>getReg()}

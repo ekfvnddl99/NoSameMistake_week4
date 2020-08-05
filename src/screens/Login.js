@@ -1,8 +1,12 @@
-import React, { Component, useState } from 'react'
+import React, { Component, useContext, createContext } from 'react'
 import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native'
 import axios from 'axios';
-//import Toast from 'react-native-simple-toast';
-import PassMeter from "react-native-passmeter";
+import Toast from 'react-native-simple-toast';
+import { MyContext } from '../../index'
+import HomeScreen from './HomeScreen';
+import { UserConsumer } from '../../GlogalContext';
+// import {connect} from 'react-redux';
+// import {addFood} from '../actions/food'
 
 const MAX_LEN = 15,
   MIN_LEN = 6,
@@ -16,10 +20,14 @@ export default class Login extends Component {
       super();
       this.state = {
       dataku: [],
+      id:''
       };
     }
 
   getReg(){//only id check
+    Toast.show("%%%%%%%%%%%");
+    this.props.navigation.navigate('Register', {user: this.state.id });
+    Toast.show("$$$$$$$$$$$$");
     var url = 'http://192.249.19.242:6480/register';
     axios.post(url, {
       id: this.state.id,
@@ -37,13 +45,24 @@ export default class Login extends Component {
     
   getIn(){//id, password check
       var url = 'http://192.249.19.242:6480/login';
+      var th = this;
+      var id2 = this.state.id;
       axios.post(url, {
         id: this.state.id,
         password: this.state.password
       })
       .then(function (response) {
         if(response.data === 'yes'){
-          //ToastAndroid.show('어서오십시오. 기다리고 있었습니다.', ToastAndroid.LONG)
+
+          // <UserConsumer>
+          //   {
+          //     ({changev}) => (
+          //       changev(id2)
+          //     )
+          //   }
+          // </UserConsumer>
+          th.props.navigation.navigate('HomePage', {user: id2});
+          ToastAndroid.show('어서오십시오. 기다리고 있었습니다.', ToastAndroid.LONG)
         }
         else if(response.data === 'id'){
           //ToastAndroid.show('아이디ㅋ 틀림ㅋ', ToastAndroid.LONG)
@@ -55,7 +74,6 @@ export default class Login extends Component {
       .catch(function (error) {
         console.log(error);
       });
-      
       //this.state.id = '';
       //this.state.password = '';
     };
@@ -64,8 +82,11 @@ export default class Login extends Component {
      //const [password, setPassword] = useState("");
     return (
       <View style={styles.container}>
+
         <View style={styles.title}><Text style={{fontSize:50}}>LOG-IN</Text></View>
+        
         <View style={styles.cont}>
+
           <View style={styles.between}>
             <Text style={{fontSize:20}}>ID</Text>
             <TextInput
@@ -76,6 +97,7 @@ export default class Login extends Component {
               value={this.state.id}
             />
           </View>
+
           <View style={styles.between}>
             <Text style={{fontSize:20}}>Password</Text>
             <TextInput
@@ -86,15 +108,12 @@ export default class Login extends Component {
               onChangeText={password => this.setState({password})}
               value={this.state.password}
             />
-            { /*<PassMeter
-            showLabels
-            pwd={password}
-            maxLength={MAX_LEN}
-            minLength={MIN_LEN}
-            labels={PASS_LABELS}
-            /> */}
           </View>
-      </View>
+
+        </View>
+
+
+
         <View style={{flexDirection:'row', justifyContent:'center'}}>
           <TouchableOpacity
           style={{
@@ -109,6 +128,18 @@ export default class Login extends Component {
           LOG-IN
           </Text>
           </TouchableOpacity>
+{/* 
+          <UserConsumer>
+            {
+              ({value}) => (
+                <View>
+                  <Text>{value} is vlaue</Text>
+                </View>
+              )
+            }
+          </UserConsumer> */}
+
+
           <TouchableOpacity
           style={{
               backgroundColor:'blue', borderRadius:10,
@@ -122,11 +153,29 @@ export default class Login extends Component {
           REGISTER
           </Text>
           </TouchableOpacity>
-      </View>
+        </View> 
+
+
       </View>
     );
   }
 }
+
+// const mapStateToProps = (state) => {
+//   console.log(state);
+//   return {
+//     foods: state.foodReducer.foodList
+//   }
+// }
+
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     delete: (key) => dispatch(addFood(key))
+//   }
+// }
+
+
+// export default connect(mapStateToProps, mapDispatchToProps)(Login);
 
 
 const styles = StyleSheet.create({
