@@ -1,4 +1,4 @@
-import React, { useRef, Component, useState, useContext } from 'react';
+import React, { useRef, Component, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Button, Dimensions, ScrollView, Animated, TextInput, RefreshControl } from 'react-native';
 import PropTypes from 'prop-types';
 import { Modalize } from 'react-native-modalize';
@@ -12,22 +12,20 @@ import { Dropdown } from 'react-native-material-dropdown';
 import { CheckBox } from 'react-native-elements'
 import axios from 'axios';
 import { set } from 'react-native-reanimated';
+
 var user_id
-
 var data = [];
-
 var miss = [];
+var miss2 = [];
 
-const MyContext= React.createContext(
-   {
-       title: 'molemole'
-   }
-)
 
 
 const { height, width } = Dimensions.get('window');
 
+//front view///////////////////////////////////////////////////
+
 function FrontView(props) {
+
   const modalRef = React.createRef();
 
   const renderHeader = () => (
@@ -52,6 +50,7 @@ function FrontView(props) {
       console.log('qqqqqqqqqqqqqqqqqqqqq')
       console.log(miss)
       console.log('qqqqqqqqqqqqqqqqqqqqq')
+      // console.log(JSON.parse(JSON.stringify(miss)));
     })
     .catch(function (error) {
       console.log(error);
@@ -66,7 +65,7 @@ function FrontView(props) {
     }
   };
 
-  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귯-☆";
+  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귯-☆" + "오늘 나의 일정/일정 클릭해서 실수 확인";
 
   return (
     <>
@@ -105,6 +104,26 @@ function FrontView(props) {
     </>
   );
 }
+
+class Front extends Component{
+  render(){
+    return(
+      <View>
+            {miss.map((item, index)=>{
+              return(
+              <View>
+              <Card style={styles.card}>
+              <Text>{item.label}</Text>
+              </Card>
+              </View>);
+              })}
+          </View>  
+    )
+  }
+}
+
+
+//backview/////////////////////////////////////////////
 
 var mistake;
 // const [mistake, setMistake] = useState("AAA");
@@ -146,6 +165,14 @@ function BackView(props) {
     })
     .then(function (response) {
       miss=response.data
+      miss = JSON.parse(JSON.stringify(miss));
+      miss2=[];
+      for(let j=0;j<miss.length;j++){
+        if(miss[j].label != null){
+          miss2.push(miss[j].label);
+        }
+      }
+      console.log(miss2);
     })
     .catch(function (error) {
       console.log(error);
@@ -187,7 +214,7 @@ function BackView(props) {
     Toast.show('추가되었습니다.')
   };
 
-  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귱-☆";
+  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귱-☆"+"오늘 한 나의 실수체크박스/실수추가";
   var field=[{value:"대인관계 실수"}, {value:"일 실수"}, {value:"스스로 실수"}]
   //refresh
   const [refreshing, setFresh] = useState(false);
@@ -273,10 +300,73 @@ function BackView(props) {
   );
 }
 
+
+
+const renderLabel = (label, style) => {
+  return (
+    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <Card style={{padding: 10, margin: 10, height: 50}}>
+       <View>
+         <Text style={style}>{label}</Text>
+       </View>
+     </Card>
+    </View>
+  )
+}
+
+/////////////checkbox
+
+class CheckList extends Component {
+  state = { selectedFruits: [] }
+
+  onSelectionsChange = (selectedFruits) => {
+    // selectedFruits is array of { label, value }
+    console.log(selectedFruits)
+    this.setState({ selectedFruits })
+  }
+
+  selectMiss = () => {//only id check
+    var url = 'http://192.249.19.242:6480/selectMiss';
+    for(var i=0; i<this.state.selectedFruits.length; i++){
+      axios.post(url, {
+        id: user_id,
+        label: this.state.selectedFruits[i].label
+      })
+      .then(function (response) {
+        
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+  };
+
+  render () {
+    return (
+      <View>
+        <SelectMultiple
+          items={miss2}
+          renderLabel={renderLabel}
+          selectedItems={this.state.selectedFruits}
+          onSelectionsChange={this.onSelectionsChange} />
+          <View style={styles.content__button}>
+            <TouchableOpacity
+              onPress={this.selectMiss.bind(this)}
+              style={styles.button}>
+              <Text style={styles.text}>저장하기</Text>
+            </TouchableOpacity>
+          </View>
+      </View>
+    )
+  }
+}
+
+
+///main page////////////////////////
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { isFlipped: false, num:true };
+    this.state = { isFlipped: false, num:true, refreshing: false};
     this.flip = this.flip.bind(this);
   }
 
@@ -292,6 +382,19 @@ export default class App extends Component {
     });
   }
 
+  // //refresh
+  // wait = (timeout) => {
+  //   return new Promise(resolve => {
+  //     setTimeout(resolve, timeout);
+  //   });
+  // }
+
+  // onRefresh = React.useCallback(() => {
+  //   this.setState({refreshing: true});
+
+  //   wait(2000).then(() =>  this.setState({refreshing: false}));
+  // }, []);
+
   render() {
     user_id = this.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
     // getDaily()
@@ -301,6 +404,8 @@ export default class App extends Component {
       id: user_id,
     })
     .then(function (response) {
+      //data = [];
+      console.log("start");
       data=response.data
     })
     .catch(function (error) {
@@ -328,6 +433,7 @@ export default class App extends Component {
   }
 }
 
+////////////////////////////////////////////////////////////
 const styles = StyleSheet.create({
   container: {
     // flex: 1,
@@ -464,80 +570,3 @@ const styles = StyleSheet.create({
   }
 });
 
-/////////////////////////
-// const fruits = ['Apples', 'Oranges', 'Pears']
-// --- OR ---
-
-class Front extends Component{
-  render(){
-    return(
-      <View>
-            {miss.map((item, index)=>{
-              return(
-              <View>
-              <Card style={styles.card}>
-              <Text>{item.label}</Text>
-              </Card>
-              </View>);
-              })}
-          </View>  
-    )
-  }
-}
-
-const renderLabel = (label, style) => {
-  return (
-    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-      <Card style={{padding: 10, margin: 10, height: 50}}>
-       <View>
-         <Text style={style}>{label}</Text>
-       </View>
-     </Card>
-    </View>
-  )
-}
-
-class CheckList extends Component {
-  state = { selectedFruits: [] }
-
-  onSelectionsChange = (selectedFruits) => {
-    // selectedFruits is array of { label, value }
-    console.log(selectedFruits)
-    this.setState({ selectedFruits })
-  }
-
-  selectMiss = () => {//only id check
-    var url = 'http://192.249.19.242:6480/selectMiss';
-    for(var i=0; i<this.state.selectedFruits.length; i++){
-      axios.post(url, {
-        id: user_id,
-        label: this.state.selectedFruits[i].label
-      })
-      .then(function (response) {
-        
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    }
-  };
-
-  render () {
-    return (
-      <View>
-        <SelectMultiple
-          items={miss}
-          renderLabel={renderLabel}
-          selectedItems={this.state.selectedFruits}
-          onSelectionsChange={this.onSelectionsChange} />
-          <View style={styles.content__button}>
-            <TouchableOpacity
-              onPress={this.selectMiss.bind(this)}
-              style={styles.button}>
-              <Text style={styles.text}>저장하기</Text>
-            </TouchableOpacity>
-          </View>
-      </View>
-    )
-  }
-}

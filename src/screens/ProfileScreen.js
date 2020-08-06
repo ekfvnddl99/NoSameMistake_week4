@@ -138,16 +138,14 @@ loadItems(day) {
         var data = JSON.stringify(response.data);
         if(data != "[]"){
           data = JSON.parse(data);
-          console.log(data.length);
-          if (!th.state.items[strTime]) {
             th.state.items[strTime] = [];
             const numItems = data.length;
             for (let j = 0; j < numItems; j++) {
               var data1 = JSON.parse(JSON.stringify(data[j]));
               category = data1.category;
-              if(category == 0){
+              if(category == 1){
                 category = 'Relationship';
-              }else if(category == 1){
+              }else if(category == 2){
                 category = 'Workplace'
               }else{
                 category = 'ToMySelf'
@@ -161,7 +159,6 @@ loadItems(day) {
                 schedule_time: schedule_time
               });
             }
-          }
         }
         else{
           th.state.items[strTime]=[{name:"empty schedule", category:"", schedule_time:""}];
