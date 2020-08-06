@@ -12,6 +12,7 @@ import { Dropdown } from 'react-native-material-dropdown';
 import { CheckBox } from 'react-native-elements'
 import axios from 'axios';
 import { set } from 'react-native-reanimated';
+import Constants from 'expo-constants';
 
 var user_id
 var data = [];
@@ -70,36 +71,52 @@ function FrontView(props) {
   return (
     <>
       <View style={styles.container}>
+
         <View>
           <Text style={{fontSize: 25, marginTop: 50, marginLeft: 16,fontWeight: '200',}}>{date}</Text>
         </View>
+
         <View style={{flex:7}}>
-        <ScrollView style={{marginVertical:20}} vertical>
-        <View>
-            {data.map((item, index)=>{
-              return(
-              <View>
-              <Card style={styles.card}>
-              <TouchableOpacity onPress={() => {setCate(item.category), getMiss(), onOpen(), console.log('kkkkk'+miss.length)}}>
-              <Text>{item.schedule}</Text>
-              </TouchableOpacity>
-              </Card>
-              </View>);
-              })}
-          </View>  
-        </ScrollView>
+
+          <ScrollView  style={{marginVertical:20}} vertical>
+
+            <View>
+                {data.map((item, index)=>{
+                  return(
+                  <View>
+
+                    <Card style={styles.card}>
+                      <TouchableOpacity onPress={() => {setCate(item.category), getMiss(), onOpen(), console.log('kkkkk'+miss.length)}}>
+                      <Text>{item.schedule}</Text>
+                      </TouchableOpacity>
+                    </Card>
+
+                  </View>
+                  );
+                  
+                  })}
+            </View>  
+
+          </ScrollView>
+
         </View>
-          <TouchableOpacity
+
+        <TouchableOpacity
           onPress={props.flip}
           style={styles.button}>
+
           <Text style={styles.text}>반성하기</Text>
-      </TouchableOpacity>
+
+        </TouchableOpacity> 
+
       </View>
 
       <Modalize ref={modalRef} HeaderComponent={() => renderHeader()} snapPoint={430}>
+
         <ScrollView>
-        <Front/>
-      </ScrollView>
+          <Front/>
+        </ScrollView>
+
       </Modalize>
     </>
   );
@@ -361,12 +378,19 @@ class CheckList extends Component {
   }
 }
 
+var refreshing = false;
+
+
 
 ///main page////////////////////////
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { isFlipped: false, num:true, refreshing: false};
+    this.state = { 
+      isFlipped: false, 
+      num:true,
+      refreshing: false
+    };
     this.flip = this.flip.bind(this);
   }
 
@@ -382,20 +406,14 @@ export default class App extends Component {
     });
   }
 
-  // //refresh
-  // wait = (timeout) => {
-  //   return new Promise(resolve => {
-  //     setTimeout(resolve, timeout);
-  //   });
-  // }
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    wait(2000).then(() => setRefreshing(false));
+  }
 
-  // onRefresh = React.useCallback(() => {
-  //   this.setState({refreshing: true});
-
-  //   wait(2000).then(() =>  this.setState({refreshing: false}));
-  // }, []);
 
   render() {
+    // onfrefrsh();
     user_id = this.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
     // getDaily()
     // this.getDaily.bind(this);
@@ -407,6 +425,7 @@ export default class App extends Component {
       //data = [];
       console.log("start");
       data=response.data
+      _onRefresh();
     })
     .catch(function (error) {
       console.log(error);
