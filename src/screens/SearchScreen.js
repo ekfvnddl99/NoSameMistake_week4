@@ -20,7 +20,32 @@ const wait = (timeout) => {
   });
 }
 
-var data = [];
+// var data = [];
+
+let data = [
+  {
+    seriesName: 'series1',
+    data: [
+      {x: moment().subtract(4, 'd').format('MM-DD'), y: 30},
+      {x: moment().subtract(3, 'd').format('MM-DD'), y: 200},
+      {x: moment().subtract(2, 'd').format('MM-DD'), y: 170},
+      {x: moment().subtract(1, 'd').format('MM-DD'), y: 250},
+      {x: moment().format('MM-DD'), y: 10}
+    ],
+    color: '#297AB1'
+  },
+  {
+    seriesName: 'series2',
+    data: [
+      {x: moment().subtract(4, 'd').format('MM-DD'), y: 20},
+      {x: moment().subtract(3, 'd').format('MM-DD'), y: 100},
+      {x: moment().subtract(2, 'd').format('MM-DD'), y: 140},
+      {x: moment().subtract(1, 'd').format('MM-DD'), y: 550},
+      {x: moment().format('MM-DD'), y: 401}
+    ],
+    color: 'yellow'
+  }
+]
 
 
 const App = ({ navigation }) => {
@@ -93,6 +118,8 @@ const App = ({ navigation }) => {
         }
         else{
           data.push({data: Z, color:'black'});
+          onRefresh();
+          refreshing();
         }
       })
       .catch(function (error) {console.log(error);});

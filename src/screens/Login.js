@@ -5,6 +5,7 @@ import Toast from 'react-native-simple-toast';
 import { MyContext } from '../../index'
 import HomeScreen from './HomeScreen';
 import { UserConsumer } from '../../GlogalContext';
+import moment from 'moment';
 // import {connect} from 'react-redux';
 // import {addFood} from '../actions/food'
 
@@ -23,27 +24,9 @@ export default class Login extends Component {
       id:''
       };
     }
-
-  getReg(){//only id check
-    Toast.show("%%%%%%%%%%%");
-    this.props.navigation.navigate('Register', {user: this.state.id });
-    Toast.show("$$$$$$$$$$$$");
-    var url = 'http://192.249.19.242:6480/register';
-    axios.post(url, {
-      id: this.state.id,
-      password: this.state.password
-    })
-    .then(function (response) {
-      if(response.data === 'id'){
-        ToastAndroid.show('다시 입력해주세용답역', ToastAndroid.LONG);
-      }
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  };
     
   getIn(){//id, password check
+      Toast.show(moment().format("YYYY-MM-DD / HH:mm"));
       var url = 'http://192.249.19.242:6480/login';
       var th = this;
       var id2 = this.state.id;
@@ -62,7 +45,7 @@ export default class Login extends Component {
           //   }
           // </UserConsumer>
           th.props.navigation.navigate('HomePage', {user: id2});
-          ToastAndroid.show('어서오십시오. 기다리고 있었습니다.', ToastAndroid.LONG)
+          // ToastAndroid.show('어서오십시오. 기다리고 있었습니다.', ToastAndroid.LONG)
         }
         else if(response.data === 'id'){
           //ToastAndroid.show('아이디ㅋ 틀림ㅋ', ToastAndroid.LONG)
@@ -147,7 +130,7 @@ export default class Login extends Component {
               flexDirection:'row', justifyContent:'center',
               alignItems:'center'
               }}
-          onPress={this.getReg.bind(this)}
+          onPress={ () => this.props.navigation.navigate('Register')}
           >
           <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
           REGISTER

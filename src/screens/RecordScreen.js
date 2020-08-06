@@ -39,9 +39,10 @@ const RecordScreen = ({ navigation }) => {
         var User_Id = navigation.getParam('user', 'undefined');
         var cate = comp.first;
         var record = regret.id;
-        var Date = moment.utc(date).format('MM-DD');
-        var time = moment.utc(date).format('HH:mm');
+        var Date = moment(date).format('MM-DD');
+        var time = moment(date).format('HH:mm');
         var url = 'http://192.249.19.242:6480/calendar';
+        var th = this;
         axios.post(url, {
             id: User_Id,
             date: Date,
@@ -55,6 +56,7 @@ const RecordScreen = ({ navigation }) => {
         .catch(function (error) {
             console.log(error);
         });
+        navigation.navigate('Profile');
     };
     
     //dropdown part
@@ -155,10 +157,7 @@ const RecordScreen = ({ navigation }) => {
 
                     <View>
                         <ThemedText testID="dateText" style={styles.dateTimeText}>
-                            {moment.utc(date).format('MM/DD/YYYY')}
-                        </ThemedText>
-                        <ThemedText testID="timeText" style={styles.dateTimeText}>
-                            {moment.utc(date).format('HH:mm')}
+                            {moment(date).format('MM/DD/YYYY HH:mm')}
                         </ThemedText>
                     </View>
 

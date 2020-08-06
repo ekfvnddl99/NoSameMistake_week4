@@ -10,6 +10,7 @@ import SearchScreen from "../screens/SearchScreen";
 import RecordScreen from "../screens/RecordScreen";
 import LoginScreen from "../screens/Login";
 import RegisterScreen from "../screens/Register";
+import Tab4Screen from "../screens/Tab4Screen";
 
 import { AntDesign } from '@expo/vector-icons'; 
 import { Feather } from '@expo/vector-icons'; 
@@ -50,6 +51,7 @@ const HomeNavigator = createBottomTabNavigator(
   // Profile: { screen: ProfileScreen},
   Profile: ProRecNavigator,
   Search: { screen: SearchScreen},
+  Tab4: { screen: Tab4Screen }
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
