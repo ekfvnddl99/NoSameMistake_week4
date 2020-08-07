@@ -1,5 +1,5 @@
 import React, { useRef, Component, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Button, Dimensions, ScrollView, Animated, TextInput, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Button, Dimensions, ScrollView, Animated, TextInput, RefreshControl, Image } from 'react-native';
 import PropTypes from 'prop-types';
 import { Modalize } from 'react-native-modalize';
 import {Card} from 'react-native-shadow-cards';
@@ -13,32 +13,52 @@ import { CheckBox } from 'react-native-elements'
 import axios from 'axios';
 import { set } from 'react-native-reanimated';
 import Constants from 'expo-constants';
+import { FloatingAction } from 'react-native-floating-action';
 
-var user_id
+
+///////////global var
+var user_id, user_age, user_gender, mistake, _category, _category2;
 var data = [];
 var miss = [];
 var miss2 = [];
-
-
-
 const { height, width } = Dimensions.get('window');
+
+const actions = [
+  {
+  text: 'add mistake',
+  name: 'bt_mistake',
+  position: 2,
+  color:'#3C1278'
+}, 
+{
+  text: 'add schedule',
+  name: 'bt_add',
+  position: 1,
+  color:'#3C1278'
+},
+];
+
+const wait = (timeout) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+}
+
+
 
 //front view///////////////////////////////////////////////////
 
 function FrontView(props) {
 
   const modalRef = React.createRef();
-
-  const renderHeader = () => (
-    <View style={styles.modal__header}>
-      <Text style={styles.modal__headerText}>앗 나의 실수 데헷-☆</Text>
-    </View>
-  );
-
   const th=this;
   const [cate, setCate] = useState(0)
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  var date = +new Date().getFullYear()+"."+(new Date().getMonth()+1)+"."+new Date().getDate();
 
   const getMiss = () => {//only id check
+    _category = cate;
     // var id = th.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
     var url = 'http://192.249.19.242:6480/mistake';
     axios.post(url, {
@@ -46,78 +66,91 @@ function FrontView(props) {
       category: cate,
     })
     .then(function (response) {
-      console.log('qqqqqqqqqqqqqqqqqqqqq')
       miss=response.data
-      console.log('qqqqqqqqqqqqqqqqqqqqq')
-      console.log(miss)
-      console.log('qqqqqqqqqqqqqqqqqqqqq')
-      // console.log(JSON.parse(JSON.stringify(miss)));
     })
     .catch(function (error) {
       console.log(error);
     });
   };
 
-  const onOpen = () => {
+  const renderHeader = () => (
+    <View style={styles.modal__header}>
+      <Text style={styles.modal__headerText}>MY MISTAKE</Text>
+    </View>
+  );
+  const onOpen = (e) => {
+    setCate(e);
+    _category = e;
     const modal = modalRef.current;
+    var url = 'http://192.249.19.242:6480/mistake';
+    axios.post(url, {
+      id: user_id,
+      category: _category,
+    })
+    .then(function (response) {
+      miss = null;
+      miss=response.data;
+      console.log(_category + "@@@@@@@@@@@@@@@@@@@@");
+      if (modal) {
+        modal.open();
+      }
 
-    if (modal) {
-      modal.open();
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
     }
-  };
 
-  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귯-☆" + "오늘 나의 일정/일정 클릭해서 실수 확인";
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
 
   return (
     <>
-      <View style={styles.container}>
+    <View>
+    <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
 
+        <ImageBackground source={require("../assets/day.jpg")} style={styles.image}>
+
+        <View style={styles.container}>
         <View>
-          <Text style={{fontSize: 25, marginTop: 50, marginLeft: 16,fontWeight: '200',}}>{date}</Text>
+          <Text style={{fontSize: 40, marginTop: 50, marginLeft: 9,fontWeight: 'bold',color:'white'}}>{date}</Text>
+          <TouchableOpacity onPress={props.flip}>
+            <Image source={require("../assets/moon.png")} style={styles.moon}></Image>
+          </TouchableOpacity> 
         </View>
 
         <View style={{flex:7}}>
-
-          <ScrollView  style={{marginVertical:20}} vertical>
-
-            <View>
-                {data.map((item, index)=>{
-                  return(
-                  <View>
-
-                    <Card style={styles.card}>
-                      <TouchableOpacity onPress={() => {setCate(item.category), getMiss(), onOpen(), console.log('kkkkk'+miss.length)}}>
-                      <Text>{item.schedule}</Text>
-                      </TouchableOpacity>
-                    </Card>
-
-                  </View>
-                  );
-                  
+              <View>
+                  {data.map((item, index)=>{
+                    return(
+                    <View>
+                      <Card style={styles.card}>
+                        <TouchableOpacity onPress={() => {onOpen(item.category)}}>
+                        <Text style={styles.cardtext}>{item.schedule}</Text>
+                        </TouchableOpacity>
+                      </Card>
+                    </View>
+                    );
                   })}
-            </View>  
-
-          </ScrollView>
-
-        </View>
-
-        <TouchableOpacity
-          onPress={props.flip}
-          style={styles.button}>
-
-          <Text style={styles.text}>반성하기</Text>
-
-        </TouchableOpacity> 
-
-      </View>
-
-      <Modalize ref={modalRef} HeaderComponent={() => renderHeader()} snapPoint={430}>
-
-        <ScrollView>
-          <Front/>
+              </View>  
+          </View>
+          </View>
+        </ImageBackground>
         </ScrollView>
+    </View>
 
-      </Modalize>
+        <Modalize ref={modalRef} HeaderComponent={() => renderHeader()} snapPoint={430}>
+          <ScrollView>
+            <Front/>
+          </ScrollView>
+        </Modalize>
     </>
   );
 }
@@ -126,52 +159,88 @@ class Front extends Component{
   render(){
     return(
       <View>
-            {miss.map((item, index)=>{
-              return(
-              <View>
-              <Card style={styles.card}>
-              <Text>{item.label}</Text>
-              </Card>
-              </View>);
-              })}
-          </View>  
+        {miss.map((item, index)=>{
+          return(
+          <View style={{alignItems:'center'}}>
+          <Card style={styles.card}>
+          <Text style={styles.cardtext}>{item.label}</Text>
+          </Card>
+          </View>);
+          })}
+      </View>
     )
   }
 }
 
 
 //backview/////////////////////////////////////////////
-
-var mistake;
-// const [mistake, setMistake] = useState("AAA");
 function BackView(props) {
-  const modalRef = React.createRef();
+  const modalRef2 = React.createRef();
+  const th=this;
+  const [cate, setCate] = useState(0);
   const [category, setCategory] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [refresh, setRefresh] = React.useState(false);
+  var date = +new Date().getFullYear()+"."+(new Date().getMonth()+1)+"."+new Date().getDate();
+  var field=[{value:"Relationship"}, {value:"Workplace"}, {value:"ToMySelf"}];
+
+
+  const missSave = () => {//db
+    if (modalRef2.current) {
+      onClose();
+      Toast.show('저장되었습니다.')
+    }
+  };
+  const onRefresh = React.useCallback(() => {
+    setRefresh(true);
+
+    wait(2000).then(() => setRefresh(false));
+  }, []);
+
+
 
   const renderHeader = () => (
     <View style={styles.modal__header}>
       <Text style={styles.modal__headerText}>오늘 하루 반성하자귱-☆</Text>
     </View>
   );
+  const onOpen = (e) => {
+    setCate(e)
+    _category2 = e;
+    const modal = modalRef2.current;
+    var url = 'http://192.249.19.242:6480/mistake';
+    axios.post(url, {
+      id: user_id,
+      category: e,
+    })
+    .then(function (response) {
+      miss = null;
+      miss=response.data;
+      miss = JSON.parse(JSON.stringify(miss));
+      miss2=[];
+      for(let j=0;j<miss.length;j++){
+        if(miss[j].label != null){
+          miss2.push(miss[j].label);
+        }
+      }
+      console.log(e + "kkkkkkkkkkkk");
+      if (modal) {
+        modal.open();
+      }
 
-  const onOpen = () => {
-    const modal = modalRef.current;
-
-    if (modal) {
-      modal.open();
-    }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   };
-  
+
   const onClose = () => {
-    const modal = modalRef.current;
+    const modal = modalRef2.current;
 
     if (modal) {
       modal.close();
     }
   };
-
-  const th=this;
-  const [cate, setCate] = useState(0)
 
   const getMiss = () => {//only id check
     // var id = th.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
@@ -196,118 +265,72 @@ function BackView(props) {
     });
   };
 
-  const addMiss = () => {//only id check
-    var url = 'http://192.249.19.242:6480/addMiss';
-    axios.post(url, {
-      id: user_id,
-      age: '20',
-      gender: '여',
-      category: category,
-      label: mistake
-    })
-    .then(function (response) {
+  // const addMiss = () => {//only id check
+  //   var url = 'http://192.249.19.242:6480/addMiss';
+  //   axios.post(url, {
+  //     id: user_id,
+  //     age: '20',
+  //     gender: '여',
+  //     category: category,
+  //     label: this.state.mistake
+  //   })
+  //   .then(function (response) {
       
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  };
-
-  const [isModalVisible, setModalVisible] = useState(false);
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-
-  const missSave = () => {//db
-    if (modalRef.current) {
-      onClose();
-      Toast.show('저장되었습니다.')
-    }
-  };
-
-  const missAdd = () => {//db
-    toggleModal();
-    addMiss();
-    Toast.show('추가되었습니다.')
-  };
-
-  var date = "오늘은 "+new Date().getFullYear()+"년 "+(new Date().getMonth()+1)+"월 "+new Date().getDate()+"일이라귱-☆"+"오늘 한 나의 실수체크박스/실수추가";
-  var field=[{value:"대인관계 실수"}, {value:"일 실수"}, {value:"스스로 실수"}]
-  //refresh
-  const [refreshing, setFresh] = useState(false);
-  const _onRefresh = () => {
-    setFresh(true);
-    // fetchData().then(() => {
-    //   setFresh(false);
-    // });
-    setFresh(false);
-  }
+  //   })
+  //   .catch(function (error) {
+  //     console.log(error);
+  //   });
+  // };
 
   return (
     <>
+      <View>
+
+       <ScrollView
+          contentContainerStyle={{
+            flex: 1,
+            backgroundColor: 'pink',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          refreshControl={
+            <RefreshControl refreshing={refresh} onRefresh={onRefresh} /> }
+        >
+
+
+
+      <ImageBackground source={require("../assets/night.jpg")} style={styles.image}>
+
       <View style={styles.container}>
         <View>
-          <Text style={{fontSize: 25, marginTop: 50, marginLeft: 16,fontWeight: '200',}}>{date}</Text>
+          <Text style={{fontSize: 40, marginTop: 50, marginLeft: 9,fontWeight: 'bold',color:'white'}}>{date}</Text>
+          <TouchableOpacity onPress={props.flip}>
+            <Image source={require("../assets/sun.png")} style={styles.moon}></Image>
+          </TouchableOpacity> 
         </View>
+
         <View style={{flex:7}}>
-        <ScrollView style={{marginVertical:20}} vertical refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={()=>_onRefresh()}
-          />
-        }>
           <View>
             {data.map((item, index)=>{
               return(
               <View>
               <Card style={styles.card}>
-              <TouchableOpacity onPress={() => {setCate(item.category), getMiss(),onOpen()}}>
-              <Text>{item.schedule}</Text>
+              <TouchableOpacity onPress={() => {setCate(item.category), getMiss(),onOpen(item.category)}}>
+              <Text style={styles.cardtext}>{item.schedule}</Text>
               </TouchableOpacity>
               </Card>
               </View>);
               })}
           </View>  
-          <Card style={styles.card}>
-          <TouchableOpacity onPress={() => toggleModal()}>
-            <Text style={{alignItems: 'center'}}>PLUS</Text>
-          </TouchableOpacity>
-          </Card>
-          <View>
-            <Modal isVisible={isModalVisible}> 
-            <View style={styles.modalCon}>
-                <Dropdown
-                  label='어떤 실수를 했나요?'
-                  baseColor={"#00BCD4"}
-                  data={field}
-                  onChangeText={(category)=>setCategory(category)}
-                />
-                <TextField
-                    label={'어떻게 실수를 했나요?'}
-                    highlightColor={'#00BCD4'}
-                    labelColor={'#00BCD4'}
-                    onChangeText={(t)=>{mistake=t}}
-                  />
-                <TouchableOpacity
-                  onPress={()=> missAdd()}
-                  style={styles.button}>
-                  <Text style={styles.text}>추☆가</Text>
-                </TouchableOpacity>
-              </View>
-          </Modal>
-          </View>
-        </ScrollView>
+
         </View>
-        <TouchableOpacity
-          onPress={props.flip}
-          style={styles.button}>
-          <Text style={styles.text}>일정보기</Text>
-        </TouchableOpacity>
-        <View style={styles.container}>
         </View>
+        </ImageBackground>
+
+      </ScrollView>
       </View>
 
-      <Modalize ref={modalRef} HeaderComponent={() => renderHeader()} snapPoint={430}>
+      <Modalize ref={modalRef2} HeaderComponent={() => renderHeader()} snapPoint={430}>
         <ScrollView>
         <CheckList/>
         {missSave()}
@@ -366,19 +389,18 @@ class CheckList extends Component {
           renderLabel={renderLabel}
           selectedItems={this.state.selectedFruits}
           onSelectionsChange={this.onSelectionsChange} />
+
           <View style={styles.content__button}>
             <TouchableOpacity
               onPress={this.selectMiss.bind(this)}
               style={styles.button}>
-              <Text style={styles.text}>저장하기</Text>
+              <Text style={styles.btntext}>저장하기</Text>
             </TouchableOpacity>
           </View>
       </View>
     )
   }
 }
-
-var refreshing = false;
 
 
 
@@ -389,50 +411,86 @@ export default class App extends Component {
     this.state = { 
       isFlipped: false, 
       num:true,
-      refreshing: false
+      refreshing: false,
+      category: "",
+      isModalVisible: false,
+      field: [{value:"Relationship"}, {value:"Workplace"}, {value:"ToMySelf"}],
     };
     this.flip = this.flip.bind(this);
+
+    this.missAdd = this.missAdd.bind(this);
+    this.addMiss = this.addMiss.bind(this);
+    this.toggleModal = this.toggleModal.bind(this);
+
   }
 
   getDaily(){//only id check
     console.log('aaaaaaaaa')
-    
   };
 
   flip=()=> {
-    // this.getDaily.bind(this);
     this.setState({
       isFlipped: !this.state.isFlipped,
     });
   }
 
-  _onRefresh = () => {
-    this.setState({refreshing: true});
-    wait(2000).then(() => setRefreshing(false));
-  }
+  missAdd = () => {   //db
+    console.log("missADD in!!");
+      this.toggleModal();
+      this.addMiss();
+      Toast.show('추가되었습니다.')
+    };
+  
+  toggleModal = () => {
+    console.log("toggle in");
+    var bool = this.state.isModalVisible;
+    this.setState({isModalVisible: !bool});
+    };
+
+  addMiss = () => {//only id check
+    var cat;
+    if(this.state.category === 'Relationship'){
+      cat = 1
+    }else if(this.state.category === 'Relationship'){
+      cat = 2
+    }else{
+      cat = 3
+    }
+      axios.post('http://192.249.19.242:6480/addMiss', {
+          id: user_id,
+          age: user_age,
+          gender: user_gender,
+          category: cat,
+          label: mistake
+      })
+      .then(function (response) {
+          
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    };
+
 
 
   render() {
-    // onfrefrsh();
     user_id = this.props.navigation.dangerouslyGetParent().getParam('user', 'undefined');
-    // getDaily()
-    // this.getDaily.bind(this);
+    user_age = this.props.navigation.dangerouslyGetParent().getParam('age', 'undefined');
+    user_gender = this.props.navigation.dangerouslyGetParent().getParam('gender', 'undefined');
     var url = 'http://192.249.19.242:6480/daily';
     axios.post(url, {
       id: user_id,
     })
     .then(function (response) {
-      //data = [];
-      console.log("start");
+      console.log("render start "+user_id+" "+user_age+" "+user_gender);
       data=response.data
-      _onRefresh();
     })
     .catch(function (error) {
       console.log(error);
     });
     
     return (
-      // <MyContext.Provider value={data}>
+
       <View style={styles.container}>
         <FlipComponent
           isFlipped={this.state.isFlipped}
@@ -446,8 +504,71 @@ export default class App extends Component {
           backStyles={styles.backStyles}
           rotateDuration={1000}
         />
+
+        <FloatingAction
+        ref={(ref) => { this.floatingAction = ref; }}
+        color='#3C1278'
+        actions={actions}
+        onPressItem={
+          (name) => {
+            // if(name == 'bt_category'){this.props.navigation.navigate('Category');}
+            if(name=='bt_add'){this.props.navigation.navigate('Record', { user: user_id })}
+            else if(name=='bt_mistake'){
+              console.log('aaaaaaaaa')
+              this.toggleModal();
+            }
+          }
+        }
+      />
+
+        <View>
+
+        <Modal isVisible={this.state.isModalVisible}> 
+          <View style={styles.modalCon}>
+              <Dropdown
+                label='어떤 실수를 했나요?'
+                baseColor={'#3C1278'}
+                data={this.state.field}
+                onChangeText={(category)=>this.setState({category: category})}
+              />
+              {/* <TextInput
+                placeholder = "Enter your ID"
+                style={styles.input}
+                maxLength={15}
+                onChangeText={(id) => this.setState({id})}
+                value={this.state.id}
+              /> */}
+                <TextField
+                label={'어떻게 실수를 했나요?'}
+                highlightColor={'#3C1278'}
+                labelColor={'#3C1278'}
+                onChangeText={(t)=>{mistake=t}}
+              />
+
+              <View style={{flexDirection:'row', justifyContent:'center'}}>
+                <TouchableOpacity
+                  onPress={()=> this.missAdd()}
+                  style={styles.button}
+                  >
+                  <Text style={styles.btntext}>추☆가</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={()=>  this.toggleModal()}
+                  style={styles.button}>
+                  <Text style={styles.btntext}>뒤☆로</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+        </Modal>
+
       </View>
-      // </MyContext.Provider>
+
+
+
+
+      </View>
     );
   }
 }
@@ -460,6 +581,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex:1,
+    
     width: '100%',
     height: 100,
     //shadow
@@ -470,12 +592,32 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 3,
     shadowOpacity: 0.5,
+
+  },
+  input: {
+    margin: 5,
+    padding: 6,
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#eceff1"
+  },
+  image:{
+    width,
+    height,
+    resizeMode: 'contain',
+  },
+  moon:{
+    width: 45, 
+    height: 45,
+    marginLeft:60,
+    resizeMode: 'contain'
   },
   frontStyles: {
-    backgroundColor: '#59687d',
+    backgroundColor: '#FAED7D',
     justifyContent: 'center',
-    height: 600,
-    width: 350
+    height,
+    width
   },
   backStyles: {
     backgroundColor: '#8993a2',
@@ -483,29 +625,64 @@ const styles = StyleSheet.create({
     height,
     width
   },
-  button: {
-    backgroundColor: '#152c43',
+  daybutton: {
+    backgroundColor: '#00000000',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius:20,
+    borderWidth:4,
+    borderColor: '#3C1278',
+    width: 100,
+    height: 50,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#DAD9FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius:30,
     width: 78,
     height: 50,
     alignSelf: 'center',
-    marginBottom: 20
+    marginBottom: 20,
+    //////////////////////
+    flexDirection:'row'
+  },
+  btntext: {
+    color: 'white',
+    fontWeight:'bold',
+    fontSize: 17
   },
   text: {
-    color: '#bddac8',
+    color: 'white',
   },
+  card:{
+    height: 50,
+    marginTop: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    opacity: 0.75,
+  },
+  cardtext:{
+    color:'black',
+    fontSize: 20,
+    fontWeight: '200',
+    justifyContent: 'center'
+  },
+//modalize
   modal__header: {
     paddingVertical: 15,
     marginHorizontal: 15,
 
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
+    borderBottomColor: '#5112AB',
+    borderBottomWidth: 3,
   },
-
   modal__headerText: {
-    fontSize: 15,
-    fontWeight: '200',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 
   content: {
@@ -570,22 +747,5 @@ const styles = StyleSheet.create({
     paddingBottom:20,
     borderRadius:20,
     borderWidth: 1,
-  },
-  card:{
-    elevation:5,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowRadius: 3,
-    shadowOpacity: 0.5,
-    height: 70,
-    width: width - 30,
-    marginTop: 12,
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 6
   }
 });
-

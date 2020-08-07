@@ -5,7 +5,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Button
+  Button,
+  Image
 } from 'react-native';
 import React, { Component } from "react";
 import { MenuButton, Logo } from "../components/header/header";
@@ -14,6 +15,10 @@ import _ from 'lodash';
 import { FloatingAction } from 'react-native-floating-action';
 import axios from 'axios'
 import moment from 'moment'
+import Modal from 'react-native-modal';
+import { Dropdown } from 'react-native-material-dropdown';
+import TextField from 'react-native-md-textinput';
+import Toast from 'react-native-simple-toast';
 
 
 const testIDs = require('../testIDs');
@@ -24,33 +29,29 @@ const futureDates = getFutureDates(9);
 const dates = [fastDate, today].concat(futureDates);
 const themeColor = '#00AAAF';
 const lightThemeColor = '#EBF9F9';
+var mistake;
+var thiscal_schedule_time = "";
+var thiscal_name = "";
+var thiscal_category = "";
   
 
 //floating button을 누르면 글을 쓸 수 있게 하기
 const actions = [
-//   {
-//   text: 'Accessibility',
-//   name: 'bt_accessibility',
-//   position: 2
-// }, 
+  {
+  text: 'add mistake',
+  name: 'bt_mistake',
+  position: 2,
+  color:'#3C1278'
+}, 
 {
-  text: 'Add',
+  text: 'add schedule',
   name: 'bt_add',
-  position: 1
+  position: 1,
+  color:'#3C1278'
 },
-// {
-//   text: 'category',
-//   name: 'bt_category',
-//   position: 0
-// }
-// {
-//   text: 'Video',
-//   name: 'bt_videocam',
-//   position: 4
-// }
 ];
 
-var id;
+var id, u_age, u_gender;
 function getFutureDates(days) {
   const array = [];
   for (let index = 1; index <= days; index++) {
@@ -68,10 +69,7 @@ function getPastDate(days) {
 export default class ProfileScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerLeft: () => <MenuButton onPress={() => navigation.openDrawer()} />,
-      headerTitle: () => <Logo />,
-      headerBackTitle: "Profile",
-      headerLayoutPreset: "center"
+      headerVisible: false,
     };
   };
 
@@ -80,34 +78,182 @@ export default class ProfileScreen extends React.Component {
 
     this.state = {
       items: {},
+      category: "",
+      isModalVisible: false,
+      field: [{value:"Relationship"}, {value:"Workplace"}, {value:"ToMySelf"}],
+      modal2: false
     };
+    this.missAdd = this.missAdd.bind(this);
+    this.addMiss = this.addMiss.bind(this);
+    this.toggleModal = this.toggleModal.bind(this);
+    this.toggleModal2 = this.toggleModal2.bind(this);
   }
+
+  missAdd = () => {//db
+    this.toggleModal();
+    this.addMiss();
+    Toast.show('추가되었습니다.')
+  };
+
+  toggleModal = () => {
+  var bool = this.state.isModalVisible;
+  this.setState({isModalVisible: !bool});
+  };
+
+  toggleModal2 = () => {
+    var bool = this.state.modal2;
+    this.setState({modal2: !bool});
+    };
+
+  addMiss = () => {//only id check
+    axios.post('http://192.249.19.242:6480/addMiss', {
+        id: id,
+        age: u_age,
+        gender: u_gender,
+        category: this.category,
+        label: mistake
+    })
+    .then(function (response) {
+        
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+  };
+
+  Separator = () => (
+    <View style={styles.separator} />
+    );
+
 
 
   render() {
-    id = this.props.navigation.dangerouslyGetParent().dangerouslyGetParent().getParam('user', 'undefined')
+    id = this.props.navigation.dangerouslyGetParent().dangerouslyGetParent().getParam('user', 'undefined');
+    u_age = this.props.navigation.dangerouslyGetParent().dangerouslyGetParent().getParam('age', 'undefined');
+    u_gender = this.props.navigation.dangerouslyGetParent().dangerouslyGetParent().getParam('gender', 'undefined');
+
     return (
       <View style={styles.floatingbutton}>
-        <Text> { id } </Text>
+        <Image
+      source={require("../assets/back.png")}
+      style={{position:'absolute',
+      left:0, 
+      right:0, 
+      top:0,
+      bottom:0}} />
       <Agenda
+        style={{marginTop: 10}}
         testID={testIDs.agenda.CONTAINER}
         items={this.state.items}
         loadItemsForMonth={this.loadItems.bind(this)}
         selected={moment().format("YYYY-MM-DD")}
         renderItem={this.renderItem.bind(this)}
-        renderEmptyDate={this.renderEmptyDate.bind(this)}
+        // renderEmptyDate={() => {return (
+        // <View style={styles.emptyDate}>
+        //   <Text>emptydate</Text>
+        // </View>);}}
+        // renderEmptyData = {() => {return (
+        //   <View style={{
+        //     backgroundColor: 'white',
+        //     flex: 1,
+        //     borderRadius: 5,
+        //     padding: 10,
+        //     marginRight: 10,
+        //     marginTop: 17,
+        //     height: 15}}>
+        //     <Text>emptydate</Text>
+        //   </View>);}}
+        renderEmptyData = {this.renderEmptyDate.bind(this)}
+        // renderEmptyDate={this.renderEmptyDate.bind(this)}
         rowHasChanged={this.rowHasChanged.bind(this)}
+        theme={{
+          agendaTodayColor:  '#3C1278',
+          agendaKnobColor: "#eceff1",
+          selectedDayBackgroundColor: '#DAD9FF',
+          dotColor: '#3C1278',
+          todayTextColor: '#3C1278',
+          backgroundColor: '#00000000'
+        }}
       />
       {/* //floatingactionbutton part */}
       <FloatingAction
         ref={(ref) => { this.floatingAction = ref; }}
+        color='#3C1278'
         actions={actions}
         onPressItem={
           (name) => {
             // if(name == 'bt_category'){this.props.navigation.navigate('Category');}
             if(name=='bt_add'){this.props.navigation.navigate('Record', { user: id });}
-        }}
+            else if(name=='bt_mistake'){
+              this.toggleModal();
+          }
+          }}
       />
+
+      {/* modal 부분 */}
+
+      <View>
+
+        <Modal isVisible={this.state.isModalVisible}> 
+          <View style={styles.modalCon}>
+              <Dropdown
+                label='어떤 실수를 했나요?'
+                baseColor={'#3C1278'}
+                data={this.state.field}
+                onChangeText={(category)=>this.setState({category: category})}
+              />
+              <TextField
+                  label={'어떻게 실수를 했나요?'}
+                  highlightColor={'#3C1278'}
+                  labelColor={'#3C1278'}
+                  onChangeText={(t)=>{mistake=t}}
+                />
+
+              <View style={{flexDirection:'row', justifyContent:'center'}}>
+                <TouchableOpacity
+                  onPress={()=> this.missAdd()}
+                  style={styles.button}
+                  >
+                  <Text style={styles.text}>추☆가</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={()=>  this.toggleModal()}
+                  style={styles.button}>
+                  <Text style={styles.text}>뒤☆로</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+        </Modal>
+        
+      </View>
+
+{/* 달력 아이템 누르면 나오는 모달 */}
+      <View >
+
+        <Modal isVisible={this.state.modal2} style={{alignItems:'center'}}> 
+        <View style={styles.card}>
+          <View style={styles.header}>
+            <Image style={styles.profileImg} source={require("../assets/bear.png")} />
+            <Text style={{fontWeight:"bold",fontSize:18}}> {thiscal_name}</Text>
+          </View>
+          <View style={{marginTop:10}}>
+            <Text style={{color:"gray"}}>Time: {thiscal_schedule_time}</Text>
+            <Text style={{color:"gray"}}>Mistake: {thiscal_category}</Text>
+          </View>
+          <View style={{flexDirection:'row', justifyContent:'center'}}>
+                <TouchableOpacity
+                  onPress={()=>  this.toggleModal2()}
+                  style={styles.button2}>
+                  <Text style={styles.text}>Back</Text>
+                </TouchableOpacity>
+              </View>
+        </View>
+        </Modal>
+
+      </View>
+
 
       </View>
     );
@@ -160,9 +306,9 @@ loadItems(day) {
               });
             }
         }
-        else{
-          th.state.items[strTime]=[{name:"empty schedule", category:"", schedule_time:""}];
-        }
+        // else{
+        //   th.state.items[strTime]=[{name:"empty schedule", category:"", schedule_time:""}];
+        // }
         const newItems = {};
         Object.keys(th.state.items).forEach(key => {newItems[key] = th.state.items[key];});
         th.setState({
@@ -189,12 +335,16 @@ loadItems(day) {
 
 //각 아이템 누를 때마다 실행하는 것 
 renderItem(item) {
+  thiscal_schedule_time = item.schedule_time;
+  thiscal_name = item.name;
+  thiscal_category = item.category;
   return (
       <TouchableOpacity
         testID={testIDs.agenda.ITEM}
         style={[styles.item, {height: item.height}]} 
         //각 날짜 아이템 누를 때 뜨는 버튼
-        onPress={() => Alert.alert(item.schedule_time+" "+item.name + " " + item.category)}
+        // onPress={() => Alert.alert(item.schedule_time+" "+item.name + " " + item.category)}
+        onPress={ () => {this.toggleModal2()} }
       >
         <Text>{item.name}</Text>
       </TouchableOpacity>
@@ -204,7 +354,7 @@ renderItem(item) {
 renderEmptyDate() {
   return (
     <View style={styles.emptyDate}>
-      <Text>This is empty date!</Text>
+      <Text>{this.Separator.bind(this)}</Text>
     </View>
   );
 }
@@ -227,7 +377,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    
+    width: '100%',
+    height: 100,
+    //shadow
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 3,
+    shadowOpacity: 0.5,
   },
 
   item: {
@@ -236,16 +397,109 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
-    marginTop: 17
+    marginTop: 17,
+    height: 15
   },
   emptyDate: {
     height: 15,
     flex:1,
-    paddingTop: 30
+    paddingTop: 30,
   },
 
   floatingbutton:{
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: '#DAD9FF'
+  },
+  button2: {
+    backgroundColor: '#DAD9FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 78,
+    height: 30,
+    alignSelf: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+    flexDirection:'row'
+  },
+  text: {
+    color: '#bddac8',
+  },
+  modalCon: {
+    backgroundColor:"#fff",
+    padding:40,
+    marginRight:30,
+    marginLeft:30,
+    marginTop:10,
+    paddingTop:20,
+    paddingBottom:20,
+    borderRadius:20,
+    borderWidth: 1,
+  },
+  input: {
+    margin: 5,
+    padding: 6,
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#eceff1"
+  },
+  button: {
+    backgroundColor: '#DAD9FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius:30,
+    width: 78,
+    height: 50,
+    alignSelf: 'center',
+    marginBottom: 20,
+    //////////////////////
+    flexDirection:'row'
+  },
+  btntext: {
+    color: '#3C1278',
+    fontWeight:'bold',
+    fontSize: 17
+  },
+  text: {
+    color: 'white',
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: (255, 255, 255, 0),
+    justifyContent:"center",
+    alignContent:"center",
+    alignItems:"center",
+  },
+  modalCon: {
+    backgroundColor:"#fff",
+    padding:40,
+    marginRight:30,
+    marginLeft:30,
+    marginTop:10,
+    paddingTop:20,
+    paddingBottom:20,
+    borderRadius:20,
+    borderWidth: 1,
+  },
+  card:{
+    height:150,
+    width:"60%",
+    backgroundColor:"white",
+    borderRadius:15,
+    padding:10,
+    elevation:10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5, 
+  },
+  profileImg:{
+    width:30,
+    height:30,
+    borderRadius:50,
+    marginRight:10,
+  },
+  header: {
+    flexDirection:"row",
   }
-});
+}); 

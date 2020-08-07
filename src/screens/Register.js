@@ -1,7 +1,8 @@
 import React, { Component, useContext, createContext } from 'react'
-import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native'
+import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid, ImageBackground, Dimensions, Image } from 'react-native'
 import axios from 'axios';
 import Toast from 'react-native-simple-toast';
+import { Ionicons } from '@expo/vector-icons'; 
 import { MyContext } from '../../index'
 import HomeScreen from './HomeScreen';
 import { UserConsumer } from '../../GlogalContext';
@@ -14,10 +15,7 @@ import DropdownMenu from 'react-native-dropdown-menu';
 const MAX_LEN = 15,
   MIN_LEN = 6,
   PASS_LABELS = ["Too Short", "Weak", "Normal", "Strong", "Secure"];
-
-  //const [password, setPassword] = useState("");
-
-
+  const { height, width } = Dimensions.get('window');
 
 export default class Register extends Component {
   
@@ -26,8 +24,11 @@ export default class Register extends Component {
       this.state = {
       dataku: [],
       id:'',
+      password:'',
+      age:'',
       text: '',
-      field : [["남", "여"]]
+      gender : [{gender: "남"}, {gender: "여"}],
+      check : -1
       };
     }
 
@@ -59,161 +60,207 @@ export default class Register extends Component {
       console.log(error);
     });
   };
+  handleCheck = (checkedId) => {
+    this.setState({checkedId})
+  }
     
  
   render() {
      //const [password, setPassword] = useState("");
     return (
       <View style={styles.container}>
+        <ImageBackground source={require("../assets/login.jpg")} style={styles.image}>
+        <View style={{justifyContent:'center', alignItems:'center'}}>
+        <Image source={require("../assets/bear.png")} style={styles.bear}></Image>
+        <View style={{justifyContent:'center', alignItems:'center', flexDirection:'row'}}>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'#fb5b5a'}}>G</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'white'}}>O</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'#fb5b5a'}}>M</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'white'}}>D</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'#fb5b5a'}}>O</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'white'}}>R</Text>
+          <Text style={{fontSize: 40, fontWeight:'bold', color:'#fb5b5a'}}>I</Text>
+        </View>
+        </View>
 
-        <View style={styles.title}><Text style={{fontSize:20}}>Register</Text></View>
-        
-        <View style={styles.cont}>
+          <View style={{flex: 1,alignItems: 'center',justifyContent: 'center'}}>
+            <View style={styles.between}>
+              <TextInput
+                placeholder = "Enter your ID"
+                style={styles.input}
+                maxLength={15}
+                onChangeText={(id) => this.setState({id})}
+                value={this.state.id}
+              />
+            </View>
 
-          <View style={styles.between}>
-            <Text style={{fontSize:20}}>ID</Text>
-            <TextInput
-              placeholder = "Enter your ID"
-              style={styles.input}
-              maxLength={15}
-              onChangeText={(id) => this.setState({id})}
-              value={this.state.id}
-            />
-          </View>
-
-          <View style={styles.between}>
-            <Text style={{fontSize:20}}>Password</Text>
-            <TextInput
-              placeholder = "Enter your Password"
-              style={styles.input}
-              maxLength={15}
-              secureTextEntry
-              onChangeText={password => this.setState({password})}
-              value={this.state.password}
-            />
-          </View>
 
             <View style={styles.between}>
-            <Text style={{fontSize:20}}>gender</Text>
+              <TextInput
+                placeholder = "Enter your Password"
+                style={styles.input}
+                maxLength={15}
+                secureTextEntry
+                onChangeText={(password) => this.setState({password})}
+                value={this.state.password}
+              />
+            </View>
 
-            <View style={{height: 64}}>
-            <DropdownMenu
-                bgColor={'white'}
-                tintColor={'#666666'}
-                activityTintColor={'green'}
+            <View style={styles.between}>
+              <TextInput
+                placeholder = "Enter your age"
+                style={styles.input}
+                maxLength={15}
+                onChangeText={(age) => this.setState({age})}
+                value={this.state.age}
+              />
+            </View>
+
+            {/* <View style={{flexDirection:'row'}}>
+            <Ionicons name="ios-woman" size={24} color="white" style={{marginLeft: 20}}/>
+            <Ionicons name="ios-man" size={24} color="black" style={{marginLeft: 20}}/>
+            </View>
+           */}
+
+            {/* <View style={styles.between3}>
+              <DropdownMenu
+                bgColor={'#465881'}
+                tintColor={'white'}
+                activityTintColor={'black'}
                 handler={(selection, row) => this.setState({text: this.state.field[selection][row]})}
                 data={this.state.field}
                 >
-            </DropdownMenu>
-            </View>
-
-            </View>
-
-            <View style={{marginTop: 100}}>
-            <Text style={{fontSize:20}}>age</Text>
-            <TextInput
-              placeholder = "Enter your age"
+              </DropdownMenu>
+            </View> */}
+            <View style={{flexDirection:'row'}}>
+            <View style={styles.between4}>
+            <TouchableOpacity
+             placeholder = "man"
               style={styles.input}
-              maxLength={15}
-              onChangeText={(age) => this.setState({age})}
-              value={this.state.age}
-            />
-          </View>
+              testID="SaveAllButton"
+              onPress={()=>this.setState({text: '남'})}>
+                   <Text style={{color:'white',fontWeight:'bold', marginTop:15}}>Man</Text>
+            </TouchableOpacity>
+            </View>
+
+            <View style={styles.between4}>
+            <TouchableOpacity
+            placeholder = "woman"
+              style={styles.input}
+              testID="SaveAllButton"
+              onPress={()=>this.setState({text: '여'})}>
+              <Text style={{color:'white',fontWeight:'bold', marginTop:15}}>Woman</Text>
+            </TouchableOpacity>
 
         </View>
+        </View>
+
+          </View>
 
 
+          <View style={{flex: 1,alignItems: 'center',justifyContent: 'center'}}>
 
-        <View style={{flexDirection:'row', justifyContent:'center'}}>
-          <TouchableOpacity
-          style={{
-              backgroundColor:'blue', borderRadius:10,
-              flex:1, width:100, height:50, margin:20,
-              flexDirection:'row', justifyContent:'center',
-              alignItems:'center'
-              }}
+            <TouchableOpacity 
+            style={styles.btn1}
+            onPress={ () => this.getReg(this)}>
+            <Image source={require("../assets/bear.png")} style={styles.bear}></Image>
+            </TouchableOpacity>
+
+            <TouchableOpacity
           onPress={() => this.props.navigation.navigate('Login')}
           >
-          <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-          Go Back
-          </Text>
+          <Text style={{color:"black",fontSize:11,fontWeight:'bold'}}>Go Back</Text>
           </TouchableOpacity>
-{/* 
-          <UserConsumer>
-            {
-              ({value}) => (
-                <View>
-                  <Text>{value} is vlaue</Text>
-                </View>
-              )
-            }
-          </UserConsumer> */}
 
-
-          <TouchableOpacity
-          style={{
-              backgroundColor:'blue', borderRadius:10,
-              flex:1, width:100, height:50, margin:20,
-              flexDirection:'row', justifyContent:'center',
-              alignItems:'center'
-              }}
-          onPress={this.getReg.bind(this)}
-          >
-          <Text style={{fontSize:20,color:'white',fontWeight:'bold'}}>
-          REGISTER
-          </Text>
-          </TouchableOpacity>
-        </View> 
-
-
+         </View> 
+        </ImageBackground>
       </View>
     );
   }
 }
 
-// const mapStateToProps = (state) => {
-//   console.log(state);
-//   return {
-//     foods: state.foodReducer.foodList
-//   }
-// }
-
-// const mapDispatchToProps = (dispatch) => {
-//   return {
-//     delete: (key) => dispatch(addFood(key))
-//   }
-// }
-
-
-// export default connect(mapStateToProps, mapDispatchToProps)(Login);
-
-
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: "center" },
-    input: {
-      margin: 5,
-      padding: 6,
-      borderRadius: 8,
-      marginBottom: 8,
-      paddingHorizontal: 10,
-      backgroundColor: "#eceff1"
-    },
-    title: {
-      flex:1,
-      justifyContent: 'center',
-      marginLeft:10,
-      width:"100%",
-      borderBottomWidth:1.5,
-      borderColor:'#444'
-    },
-    cont:{
-      flex:8,
-      justifyContent:'flex-start',
-      marginLeft:10,
-      marginRight:10,
-      paddingTop: 20
-    },
-    between:{
-      marginBottom: 20
-    }
+  container: { flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  },
+  input: {
+    height:50,
+    color:"white"
+  },
+  bear:{
+  width: '45%', 
+  height: '45%',
+  resizeMode: 'contain',
+},
+image:{
+  width, 
+  height
+},
+  title: {
+    flex:2,
+    justifyContent: 'center',
+    marginLeft:10,
+    width:"100%",
+    borderBottomWidth:1.5,
+    borderColor:'#444'
+  },
+  between:{
+    width:"80%",
+  backgroundColor:"#465881",
+  borderRadius:25,
+  height:30,
+  marginBottom:5,
+  justifyContent:"center",
+  padding:20
+  },
+  between4:{
+    width:"40%",
+  backgroundColor:"#465881",
+  borderRadius:25,
+  height:30,
+  marginBottom:5,
+  justifyContent:"center",
+  padding:20,  
+  alignItems:'center', 
+  flexDirection: 'row'
+  },
+  between2:{
+    width:"80%",
+  backgroundColor:"#465881",
+  borderRadius:25,
+  height:30,
+  marginTop:60,
+  justifyContent:"center",
+  padding:20
+  },
+  between3:{
+    width:"80%",
+  backgroundColor:"#465881",
+  borderRadius:25,
+  height:50,
+  marginBottom:20,
+  justifyContent:"center",
+  padding:20
+  },
+  btn1:{
+    width:"40%",
+    backgroundColor:"#fb5b5a",
+    borderRadius:25,
+    height:30,
+    alignItems:"center",
+    justifyContent:"center",
+    marginTop:50,
+    marginBottom:10
+  },
+  btn2:{
+    width:"40%",
+    backgroundColor:"#fb5b5a",
+    borderRadius:25,
+    height:30,
+    alignItems:"center",
+    justifyContent:"center",
+    marginTop:0,
+    marginBottom:10
+  },
 });

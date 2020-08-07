@@ -114,112 +114,84 @@ const RecordScreen = ({ navigation }) => {
 
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-            <View>
-                <View>
-                    <Text> { id } is the user id dddddddddddd </Text>
+      <View style={styles.container}>
+        <View style={styles.between1}>
+          <ThemedText style={styles.text}>
+            Write your schedule
+          </ThemedText>
 
-                    <View style={styles.header}>
-                        <ThemedText style={styles.text}>
-                            Write your schedule
-                        </ThemedText>
-                    </View>
+          <TextInput style={styles.input}
+            placlueholder = "write your schedule"
+            maxLength={30}
+            onChangeText={(id) => setRegret({id})}
+            value={regret.id}
+          />
 
-                    <View style={styles.header}>
-                        <TextInput style={styles.input}
-                                placeholder = "write your schedule"
-                                maxLength={30}
-                                onChangeText={(id) => setRegret({id})}
-                                value={regret.id}
-                        />
-                    </View>
+          <View style = {{width:'100%', alignItems:'center'}}>
+            <TouchableOpacity
+              style={styles.btn}
+              testID="datePickerButtonSpinner"
+              onPress={showDatepickerSpinner}>
+              <Text style={{color:'white',fontWeight:'bold'}}>Pick Date</Text>
+            </TouchableOpacity>
 
-                    <View>
-                        <Button
-                            testID="datePickerButtonSpinner"
-                            onPress={showDatepickerSpinner}
-                            title="Pick Date"
-                        />
-                    </View>
+            <TouchableOpacity
+              style={styles.btn}
+              testID="timePickerButton"
+              onPress={showTimepicker}>
+              <Text style={{color:'white',fontWeight:'bold'}}>Pick Time</Text>
+            </TouchableOpacity>
+          </View>
 
-                    <Separator />
+          <ThemedText testID="dateText" style={styles.dateTimeText}>
+              {moment(date).format('YYYY-MM-DD    HH:mm')}
+          </ThemedText>
 
-                    <View>
-                        <Button
-                            testID="timePickerButton"
-                            onPress={showTimepicker}
-                            title="Pick Time"
-                        />
-                    </View>
+          {show && (
+            <DateTimePicker
+                testID="dateTimePicker"
+                timeZoneOffsetInMinutes={0}
+                minuteInterval={interval}
+                value={date}
+                mode={mode}
+                is24Hour
+                display={display}
+                onChange={onChange}
+                style={styles.iOsPicker}
+            />
+          )}
+        </View>
+        <View style={{height: 64, width:'80%'}}>
+            <DropdownMenu
+              bgColor={'white'}
+              tintColor={'black'}
+              activityTintColor={'black'}
+              handler={(selection, row) => addText({selection,row})}
+              data={field}
+              >
+          </DropdownMenu>
+        </View>
 
-                    <Separator />
+        <View style={{marginTop: 120, width:'80%', alignItems:'center', flexDirection: 'row', justifyContent: 'center'}}>
+            <TouchableOpacity
+              style={styles.btn_bottom}
+              testID="SaveAllButton"
+              onPress={()=>getReg()}>
+              <Text style={{color:'white',fontWeight:'bold'}}>Save</Text>
+            </TouchableOpacity>
 
-                    <View>
-                        <ThemedText testID="dateText" style={styles.dateTimeText}>
-                            {moment(date).format('MM/DD/YYYY HH:mm')}
-                        </ThemedText>
-                    </View>
+            <TouchableOpacity
+              style={styles.btn_bottom}
+              testID="SaveAllButton"
+              onPress={()=>{ navigation.navigate('Future') }}>
+              <Text style={{color:'white',fontWeight:'bold'}}>Back</Text>
+            </TouchableOpacity>
 
-                    {show && (
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        timeZoneOffsetInMinutes={0}
-                        minuteInterval={interval}
-                        value={date}
-                        mode={mode}
-                        is24Hour
-                        display={display}
-                        onChange={onChange}
-                        style={styles.iOsPicker}
-                    />
-                    )}
+        </View>
 
-                </View>
-
-                <Separator />
-
-                    {/* Dropdown menu */}
-                    <View style={{height: 64}}>
-                        <DropdownMenu
-                            bgColor={'white'}
-                            tintColor={'#666666'}
-                            activityTintColor={'green'}
-                            handler={(selection, row) => addText({selection,row})}
-                            data={field}
-                            >
-                        </DropdownMenu>
-                    </View>
-
-                    {/* <View>
-                        <Button
-                            testID="CategorysButton"
-                            onPress={()=>navigation.navigate('Category')}
-                            title="Pick Category"
-                        />
-                    </View> */}
-
-                    {/* <View>
-                        <CategoryScreen />
-                    </View> */}
-
-                    <View style={{marginTop: 120}}>
-                        <Button 
-                            testID="SaveAllButton"
-                            onPress={()=>getReg()}
-                            title="save"
-                        />
-                    </View>
-
-                    <Separator />
-
-                    <View>
-                        <Text>{comp.first} is category</Text>
-                        <Text>{regret.id} is schedule</Text>
-                    </View>
-
-            </View>
-        </SafeAreaView>
+        {/* <Text>{comp.first} is category</Text>
+        <Text>{regret.id} is schedule</Text> */}
+      </View>
     );
 };
 
@@ -230,11 +202,12 @@ export default RecordScreen;
 const styles = StyleSheet.create({
     // container: { flex: 1, justifyContent: "center" },
     input: {
-      margin: 5,
-      padding: 6,
+      width:'100%',
+       margin: 5,
+       padding: 6,
       borderRadius: 8,
-      marginBottom: 8,
-      paddingHorizontal: 10,
+       marginBottom: 8,
+       paddingHorizontal: 10,
       backgroundColor: "#eceff1"
     },
     title: {
@@ -266,13 +239,14 @@ const styles = StyleSheet.create({
       body: {
         backgroundColor: Colors.white,
       },
+
       container: {
-        marginTop: 32,
         flex: 1,
         justifyContent: 'center',
         backgroundColor: '#F5FCFF',
-        paddingTop: 40,
-        paddingHorizontal: 20,
+        // paddingTop: 40,
+        // paddingHorizontal: 20,
+        alignItems: 'center',
       },
       header: {
         justifyContent: 'center',
@@ -291,10 +265,13 @@ const styles = StyleSheet.create({
       text: {
         fontSize: 20,
         fontWeight: 'bold',
+        color: '#7C77FF'
       },
       dateTimeText: {
+        marginTop : 10,
         fontSize: 16,
         fontWeight: 'normal',
+        color: '#7C77FF'
       },
 
       //////////////////
@@ -307,4 +284,42 @@ const styles = StyleSheet.create({
         borderBottomColor: '#737373',
         borderBottomWidth: StyleSheet.hairlineWidth,
       },
+      ///////////////////
+      btn:{
+        width:"100%",
+        backgroundColor:'#DAD9FF',
+        borderRadius:25,
+        height:50,
+        alignItems:"center",
+        justifyContent:"center",
+         marginTop:5,
+         marginBottom:10
+      },
+      btn_bottom:{
+        width:"50%",
+        backgroundColor:'#DAD9FF',
+        borderRadius:25,
+        height:50,
+        alignItems:"center",
+        justifyContent:"center",
+         marginTop:5,
+         marginBottom:10
+      },
+      between1:{
+        flex:1,
+        width:"80%",
+        // backgroundColor:"#465881",
+        borderRadius:25,
+        height:50,
+        // marginBottom:20,
+        justifyContent:"center",
+         alignItems:'center',
+        // padding:20
+      },
+      image: {
+        flex: 1,
+        resizeMode: "cover",
+        justifyContent: "center"
+      },
+
 });

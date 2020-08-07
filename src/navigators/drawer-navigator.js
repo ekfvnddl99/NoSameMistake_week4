@@ -12,11 +12,11 @@ import LoginScreen from "../screens/Login";
 import RegisterScreen from "../screens/Register";
 import Tab4Screen from "../screens/Tab4Screen";
 
-import { AntDesign } from '@expo/vector-icons'; 
-import { Feather } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 
-const LoginNavigator2 = createStackNavigator(
+const LoginNavigator2 = createSwitchNavigator(
   {
     Login: { screen: LoginScreen },
     Register: { screen: RegisterScreen},
@@ -27,31 +27,40 @@ const LoginNavigator2 = createStackNavigator(
 //BottomTabNavigator design
 const getTabBarIcon = (navigation, focused, tintColor) => {
   const { routeName } = navigation.state;
-  if (routeName === "Home") {
-    return <Feather name="home" size={24} color="black" />;
-  } else if (routeName === "Profile") {
-    return <AntDesign name="calendar" size={24} color={tintColor} />;
-  } else if (routeName === "Search") {
-    return <AntDesign name="Trophy" size={24} color="black" />;
+  if (routeName === "today") {
+    return <AntDesign name="caretright" size={24} color='#3C1278' />;
+  } else if (routeName === "future") {
+    return <AntDesign name="forward" size={24} color='#3C1278' />;
+  } else if (routeName === "past") {
+    return <AntDesign name="banckward" size={24} color='#3C1278' />;
+  } else if (routeName === "history") {
+    return <FontAwesome name="history" size={24} color='#3C1278' />;
   }
+  
 };
 
 const ProRecNavigator = createStackNavigator(
   {
-    Profile: { screen: ProfileScreen},
+    Future: { screen: ProfileScreen},
     Record: { screen: RecordScreen}
-  }
+  },
+  {
+    headerMode: 'none',
+    navigationOptions: {
+        headerVisible: false,
+    }
+}
 )
 
 const HomeNavigator = createBottomTabNavigator(
   {//switch navigator
   // Login: { screen: LoginScreen },
   // Register: { screen: RegisterScreen},
-  Home: { screen: HomeScreen},
+  today: { screen: HomeScreen},
   // Profile: { screen: ProfileScreen},
-  Profile: ProRecNavigator,
-  Search: { screen: SearchScreen},
-  Tab4: { screen: Tab4Screen }
+  future: ProRecNavigator,
+  past: { screen: SearchScreen},
+  history: { screen: Tab4Screen }
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -65,7 +74,7 @@ const HomeNavigator = createBottomTabNavigator(
   }
   );
 
-const MainNavigator = createStackNavigator(
+const MainNavigator = createSwitchNavigator(
   {
     LoginRegi: LoginNavigator2,
     HomePage: HomeNavigator,
