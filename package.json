@@ -10,7 +10,7 @@
   "dependencies": {
     "@react-native-community/datetimepicker": "^2.6.1",
     "@react-native-community/masked-view": "0.1.10",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "expo": "~38.0.8",
     "expo-constants": "~9.1.1",
     "expo-start": "0.0.0",
