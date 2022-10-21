@@ -35,7 +35,7 @@
     "react-native-passmeter": "0.0.5",
     "react-native-picker-module": "^2.0.2",
     "react-native-pure-chart": "0.0.24",
-    "react-native-reanimated": "~1.9.0",
+    "react-native-reanimated": "~2.10.0",
     "react-native-router-flux": "^4.2.0",
     "react-native-safe-area-context": "~3.0.7",
     "react-native-screens": "~2.9.0",
